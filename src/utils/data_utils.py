@@ -19,7 +19,7 @@ output_name (string): output file name - will be located in the processed data d
 
 def create_stock_list(input_name='nasdaq_stock_dump.txt', output_name='all_tickers.txt'):
     input_path = join(RAW_DATA_DIR, input_name)
-    output_path = join(RAW_DATA_DIR, output_name)
+    output_path = join(PROCESSED_DATA_DIR, output_name)
 
     with open(input_path, 'r') as input_file, open(output_path, 'w') as output_file:
         input_lines = [r.strip() for r in input_file.readlines()]
