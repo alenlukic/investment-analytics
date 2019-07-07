@@ -108,3 +108,6 @@ venv.bak/
 
 # Logging
 logs/*
+
+# Local config
+config.yaml
