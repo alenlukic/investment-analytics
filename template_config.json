@@ -1,6 +1,9 @@
 {
-  "API_KEY": "IEX Cloud public API token goes here",
+  "API_KEY": "Prod IEX Cloud public API token goes here; i.e. pk_blahblahblah",
+  "API_URL": "Prod URL goes here; i.e. https://cloud.iexapis.com/stable",
   "DATA_DIRECTORY": "Absolute path to the data directory goes here; e.g. /Users/user/fundamentals-investing/data",
   "LOG_DIRECTORY": "Absolute path to the log directory goes here; e.g. /Users/user/fundamentals-investing/logs",
-  "PROJECT_DIRECTORY": "Absolute path to the project directory goes here; e.g. /Users/user/fundamentals-investing"
+  "PROJECT_DIRECTORY": "Absolute path to the project directory goes here; e.g. /Users/user/fundamentals-investing",
+  "SANDBOX_API_KEY": "Sandbox IEX Cloud public API token goes here; i.e. Tpk_blahblahblah",
+  "SANDBOX_API_URL": "Sandbox URL goes here; i.e. https://sandbox.iexapis.com/stable"
 }
