@@ -1,0 +1,6 @@
+{
+  "API_KEY": "IEX Cloud public API token goes here",
+  "DATA_DIRECTORY": "Absolute path to the data directory goes here; e.g. /Users/user/fundamentals-investing/data",
+  "LOG_DIRECTORY": "Absolute path to the log directory goes here; e.g. /Users/user/fundamentals-investing/logs",
+  "PROJECT_DIRECTORY": "Absolute path to the project directory goes here; e.g. /Users/user/fundamentals-investing"
+}
