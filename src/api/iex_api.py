@@ -4,8 +4,6 @@ import requests
 from enum import Enum
 from os.path import join
 
-from src.utils.api_utils import build_response_context
-
 
 CONFIG = json.load(open('../../config.json', 'r'))
 LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.api.iex_api')
@@ -125,24 +123,42 @@ class IEXCloudAPI:
                 response_context = build_response_context(response)
                 logging.warning('Got non-200 response while hitting %s: %s', request_url, json.dumps(response_context))
                 return {}
-            return response.content
+            return json.loads(response.content or {})
         except Exception as e:
             logging.warning('The following exception occurred while hitting %s: %s', request_url, str(e))
             return {}
 
 
-def ingest_stock_data():
+def build_response_context(response):
+    """ Builds a dictionary containing useful API response data when a non-200 status code is received.
+
+    Parameters:
+        response (requests.Response): Response object
+    """
+
+    return {
+        'Status': response.status_code,
+        'Reason': response.reason,
+        'Content': json.loads(response.content or {}),
+        'Headers': json.loads(response.headers or {}),
+        'Url': response.url
+    }
+
+
+def ingest_stock_data(ticker_list='all_tickers.txt', output_name='stock_data.json'):
     """ Ingests financial and technical indicator data for all actively traded stocks on NASDAQ. """
 
-    input_path = join(PROCESSED_DATA_DIR, 'all_tickers.txt')
-    output_path = join(PROCESSED_DATA_DIR, 'stock_data.json')
+    input_path = join(PROCESSED_DATA_DIR, ticker_list)
+    output_path = join(PROCESSED_DATA_DIR, output_name)
 
     with open(input_path, 'r') as input_file, open(output_path, 'w') as output_file:
-        all_tickers = [t.strip() for t in input_file.readlines()]
         api = IEXCloudAPI(CONFIG['API_KEY'])
+        all_tickers = [t.strip() for t in input_file.readlines()]
         all_data = {}
+        n = len(all_tickers)
 
-        for ticker in all_tickers:
+        for i, ticker in enumerate(all_tickers):
+            print('Processing ticker %s (%d of %d)' % (ticker, i, n))
             all_data[ticker] = {
                 Endpoint.ADVANCED_STATS.name: api.get_advanced_stats(ticker),
                 Endpoint.CASH_FLOW.name: api.get_cash_flow(ticker),

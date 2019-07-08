@@ -106,8 +106,11 @@ venv.bak/
 # PyCharm
 .idea*
 
-# Logging
+# Data directory
+data/*
+
+# Log directory
 logs/*
 
 # Local config
-config.yaml
+config.json
