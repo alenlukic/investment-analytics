@@ -2,6 +2,7 @@ import argparse
 import logging
 import json
 import requests
+from datetime import datetime
 from enum import Enum
 from os.path import join
 
@@ -119,7 +120,7 @@ def ingest_stock_data(symbol_json='all_iex_supported_tickers.txt', output_name='
     """
 
     input_path = join(RAW_DATA_DIR, symbol_json)
-    base_output_path = join(PROCESSED_DATA_DIR, output_name)
+    base_output_path = join(PROCESSED_DATA_DIR, datetime.today().strftime('%Y%m%d'), output_name)
 
     with open(input_path, 'r') as input_file:
         symbols = [s.strip() for s in input_file.readlines()]
