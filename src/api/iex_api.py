@@ -6,7 +6,7 @@ from enum import Enum
 from os.path import join
 
 
-CONFIG = json.load(open('../../config.json', 'r'))
+CONFIG = json.load(open('config.json', 'r'))
 LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.api.iex_api')
 PROCESSED_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'processed')
 RAW_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'raw')
@@ -96,7 +96,7 @@ def build_response_context(response):
     }
 
 
-def get_symbols(output_name='all_iex_supported_tickers.json'):
+def get_symbols(output_name='all_iex_supported_tickers.txt'):
     """ Gets JSON representation of all symbols supported on IEX Cloud.
 
     Parameters:
@@ -105,11 +105,12 @@ def get_symbols(output_name='all_iex_supported_tickers.json'):
 
     output_path = join(RAW_DATA_DIR, output_name)
     symbol_json = API.get_symbols()
+    symbols = sorted([t['symbol'] for t in filter(lambda j: j['type'] == 'cs', symbol_json)])
     with open(output_path, 'r') as output_file:
-        json.dump(output_file, symbol_json, indent=2)
+        output_file.write('\n'.join(symbols))
 
 
-def ingest_stock_data(symbol_json='all_iex_supported_tickers.json', output_name='stock_data_'):
+def ingest_stock_data(symbol_json='all_iex_supported_tickers.txt', output_name='stock_data_'):
     """ Ingests financial and technical indicator data for all actively traded stocks on NASDAQ.
 
     Parameters:
@@ -121,10 +122,9 @@ def ingest_stock_data(symbol_json='all_iex_supported_tickers.json', output_name=
     base_output_path = join(PROCESSED_DATA_DIR, output_name)
 
     with open(input_path, 'r') as input_file:
-        ticker_json = json.load(input_file)
-        symbols = [t['symbol'] for t in filter(lambda j: j['type'] == 'cs', ticker_json)]
-        n = len(symbols)
+        symbols = [s.strip() for s in input_file.readlines()]
         symbol_data = {}
+        n = len(symbols)
 
         for i, symbol in enumerate(symbols):
             print('Processing symbol %s (%d of %d)' % (symbol, i + 1, n))

@@ -3,7 +3,8 @@ import json
 import requests
 from os.path import join
 
-CONFIG = json.load(open('../../config.json', 'r'))
+
+CONFIG = json.load(open('config.json', 'r'))
 LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.utils.data_utils')
 PROCESSED_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'processed')
 RAW_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'raw')
@@ -11,7 +12,7 @@ RAW_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'raw')
 logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG)
 
 
-def create_ticker_list(output_name='all_tickers.txt'):
+def get_stock_data(output_name='all_tickers.txt'):
     """ Uses raw dump from NASDAQ's FTP server to generate a list containing all tickers traded on the exchange.
 
     Parameters:
