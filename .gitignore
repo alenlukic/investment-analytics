@@ -114,3 +114,6 @@ logs/*
 
 # Local config
 config.json
+
+# Mac OS gunk
+.DS_Store
