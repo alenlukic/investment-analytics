@@ -19,11 +19,7 @@ class Endpoint(Enum):
 
     ADVANCED_STATS = 'stock/%s/advanced-stats'
     CASH_FLOW = 'stock/%s/cash-flow'
-    DIVIDENDS = 'stock/%s/dividends/%s'
-    EARNINGS = 'stock/%s/earnings/%s'
-    FINANCIALS = 'stock/%s/financials'
-    HISTORICAL_PRICES = 'stock/%s/chart/%s'
-    INCOME = 'stock/%s/income'
+    SYMBOLS = 'ref-data/symbols'
 
 
 class IEXCloudAPI:
@@ -50,7 +46,7 @@ class IEXCloudAPI:
         return self._get_response(request_url)
 
     def get_cash_flow(self, ticker):
-        """ Make GET request to the /cash-flow endpoint.
+        """ Make GET request to the /stock/cash-flow endpoint.
 
         Parameters:
             ticker (string): Ticker symbol for which to pull data.
@@ -59,57 +55,10 @@ class IEXCloudAPI:
         request_url = join(self.base_url, Endpoint.CASH_FLOW.value % ticker)
         return self._get_response(request_url)
 
-    def get_dividends(self, ticker, time_range='1y'):
-        """ Make GET request to the /dividends endpoint.
+    def get_symbols(self):
+        """ Make GET request to the /ref-data/symbols endpoint. """
 
-        Parameters:
-            ticker (string): Ticker symbol for which to pull data.
-            time_range (string): Period for which to pull data.
-        """
-
-        request_url = join(self.base_url, Endpoint.DIVIDENDS.value % (ticker, time_range))
-        return self._get_response(request_url)
-
-    def get_earnings(self, ticker, quarters='4'):
-        """ Make GET request to the /earnings endpoint.
-
-        Parameters:
-            ticker (string): Ticker symbol for which to pull data.
-            quarters (string): Number of quarters for which to pull data.
-        """
-
-        request_url = join(self.base_url, Endpoint.EARNINGS.value % (ticker, quarters))
-        return self._get_response(request_url)
-
-    def get_financials(self, ticker):
-        """ Make GET request to the /financials endpoint.
-
-        Parameters:
-            ticker (string): Ticker symbol for which to pull data.
-        """
-
-        request_url = join(self.base_url, Endpoint.FINANCIALS.value % ticker)
-        return self._get_response(request_url)
-
-    def get_historical_prices(self, ticker, time_range='1y'):
-        """ Make GET request to the /chart endpoint.
-
-        Parameters:
-            ticker (string): Ticker symbol for which to pull data.
-            time_range (string): Period for which to pull data.
-        """
-
-        request_url = join(self.base_url, Endpoint.HISTORICAL_PRICES.value % (ticker, time_range))
-        return self._get_response(request_url)
-
-    def get_income(self, ticker):
-        """ Make GET request to the /income endpoint.
-
-        Parameters:
-            ticker (string): Ticker symbol for which to pull data.
-        """
-
-        request_url = join(self.base_url, Endpoint.INCOME.value % ticker)
+        request_url = join(self.base_url, Endpoint.SYMBOLS.value)
         return self._get_response(request_url)
 
     def _get_response(self, request_url):
@@ -147,16 +96,28 @@ def build_response_context(response):
     }
 
 
-def ingest_stock_data(is_prod, tickers='all_iex_supported_tickers.json', output_name='stock_data_'):
+def get_symbols(output_name='all_iex_supported_tickers.json'):
+    """ Gets JSON representation of all symbols supported on IEX Cloud.
+
+    Parameters:
+        output_name (str): file name in raw data directory where JSON dump should be saved.
+    """
+
+    output_path = join(RAW_DATA_DIR, output_name)
+    symbol_json = API.get_symbols()
+    with open(output_path, 'r') as output_file:
+        json.dump(output_file, symbol_json, indent=2)
+
+
+def ingest_stock_data(symbol_json='all_iex_supported_tickers.json', output_name='stock_data_'):
     """ Ingests financial and technical indicator data for all actively traded stocks on NASDAQ.
 
     Parameters:
-         is_prod (bool): indicates whether to use the prod endpoint
-         tickers (string): file name in raw data directory containing IEX symbol JSON dump
-         output_name (string): base file name for partial stock data JSON dumps in processed data directory
+         symbol_json (string): file name in raw data directory containing IEX symbol JSON dump.
+         output_name (string): base file name for partial stock data JSON dumps in processed data directory.
     """
 
-    input_path = join(RAW_DATA_DIR, tickers)
+    input_path = join(RAW_DATA_DIR, symbol_json)
     base_output_path = join(PROCESSED_DATA_DIR, output_name)
 
     with open(input_path, 'r') as input_file:
@@ -164,14 +125,13 @@ def ingest_stock_data(is_prod, tickers='all_iex_supported_tickers.json', output_
         symbols = [t['symbol'] for t in filter(lambda j: j['type'] == 'cs', ticker_json)]
         n = len(symbols)
         symbol_data = {}
-        api = IEXCloudAPI(is_prod)
 
         for i, symbol in enumerate(symbols):
             print('Processing symbol %s (%d of %d)' % (symbol, i + 1, n))
 
             symbol_data[symbol] = {
-                Endpoint.ADVANCED_STATS.name: api.get_advanced_stats(symbol),
-                Endpoint.CASH_FLOW.name: api.get_cash_flow(symbol)
+                Endpoint.ADVANCED_STATS.name: API.get_advanced_stats(symbol),
+                Endpoint.CASH_FLOW.name: API.get_cash_flow(symbol)
             }
 
             # Dump data in segments
@@ -186,10 +146,14 @@ def build_argument_parser():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--production', action='store_true')
+    parser.add_argument('-s', '--symbols', action='store_true')
 
     return parser
 
 
 if __name__ == '__main__':
     args = build_argument_parser().parse_args()
-    ingest_stock_data(args.production)
+    API = IEXCloudAPI(args.production)
+    if args.symbols:
+        get_symbols()
+    ingest_stock_data()
