@@ -9,6 +9,7 @@ from os.path import join
 CONFIG = json.load(open('../../config.json', 'r'))
 LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.api.iex_api')
 PROCESSED_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'processed')
+RAW_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'raw')
 
 logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG)
 
@@ -146,44 +147,39 @@ def build_response_context(response):
     }
 
 
-def ingest_stock_data(is_prod, ticker_list='all_tickers.txt', output_name='stock_data_'):
+def ingest_stock_data(is_prod, tickers='all_iex_supported_tickers.json', output_name='stock_data_'):
     """ Ingests financial and technical indicator data for all actively traded stocks on NASDAQ. """
 
-    input_path = join(PROCESSED_DATA_DIR, ticker_list)
+    input_path = join(RAW_DATA_DIR, tickers)
     base_output_path = join(PROCESSED_DATA_DIR, output_name)
 
     with open(input_path, 'r') as input_file:
+        ticker_json = json.load(input_file)
+        symbols = [t['symbol'] for t in filter(lambda j: j['type'] == 'cs', ticker_json)]
+        n = len(symbols)
+        symbol_data = {}
         api = IEXCloudAPI(is_prod)
-        all_tickers = [t.strip() for t in input_file.readlines()]
-        all_data = {}
-        n = len(all_tickers)
 
-        for i, ticker in enumerate(all_tickers):
-            print('Processing ticker %s (%d of %d)' % (ticker, i + 1, n))
+        for i, symbol in enumerate(symbols):
+            print('Processing symbol %s (%d of %d)' % (symbol, i + 1, n))
 
-            all_data[ticker] = {
-                Endpoint.ADVANCED_STATS.name: api.get_advanced_stats(ticker),
-                Endpoint.CASH_FLOW.name: api.get_cash_flow(ticker),
-                Endpoint.DIVIDENDS.name: api.get_dividends(ticker),
-                Endpoint.EARNINGS.name: api.get_earnings(ticker),
-                Endpoint.FINANCIALS.name: api.get_financials(ticker),
-                Endpoint.HISTORICAL_PRICES.name: api.get_historical_prices(ticker),
-                Endpoint.INCOME.name: api.get_income(ticker)
+            symbol_data[symbol] = {
+                Endpoint.ADVANCED_STATS.name: api.get_advanced_stats(symbol),
+                Endpoint.CASH_FLOW.name: api.get_cash_flow(symbol)
             }
 
             # Dump data in segments
             if (i + 1) % 10 == 0 or i == n - 1:
-                output_path = base_output_path + str(i) + '.json'
-                with open(output_path, 'w') as output_file:
-                    json.dump(all_data, output_file, indent=2, sort_keys=True)
-                all_data = {}
+                with open(base_output_path + str(i + 1) + '.json', 'w') as output_file:
+                    json.dump(symbol_data, output_file, indent=2, sort_keys=True)
+                symbol_data = {}
 
 
 def build_argument_parser():
     """ Build parser for command-line arguments. """
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--production', default=True)
+    parser.add_argument('-p', '--production', action='store_true')
 
     return parser
 
