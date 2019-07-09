@@ -148,7 +148,13 @@ def build_response_context(response):
 
 
 def ingest_stock_data(is_prod, tickers='all_iex_supported_tickers.json', output_name='stock_data_'):
-    """ Ingests financial and technical indicator data for all actively traded stocks on NASDAQ. """
+    """ Ingests financial and technical indicator data for all actively traded stocks on NASDAQ.
+
+    Parameters:
+         is_prod (bool): indicates whether to use the prod endpoint
+         tickers (string): file name in raw data directory containing IEX symbol JSON dump
+         output_name (string): base file name for partial stock data JSON dumps in processed data directory
+    """
 
     input_path = join(RAW_DATA_DIR, tickers)
     base_output_path = join(PROCESSED_DATA_DIR, output_name)
