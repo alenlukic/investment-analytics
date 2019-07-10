@@ -1,42 +1,30 @@
 import logging
 import json
-import requests
-from os.path import join
+from os import listdir
+from os.path import basename, join
 
 
 CONFIG = json.load(open('config.json', 'r'))
 LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.utils.data_utils')
 PROCESSED_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'processed')
-RAW_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'raw')
 
 logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG)
 
 
-def get_stock_data(output_name='all_tickers.txt'):
+def merge_stock_data(input_dir, output_suffix='_stock_data.json'):
     """ Uses raw dump from NASDAQ's FTP server to generate a list containing all tickers traded on the exchange.
 
     Parameters:
-        output_name (string): output file name - will be located in the processed data directory
+        input_dir (str): directory containing partial stock data dumps
+        output_suffix (str): suffix of output file name (will be saved to processed data directory)
     """
+    partial_files = [f for f in filter(lambda j: j.endswith('.json'), listdir(input_dir))]
+    merged_data = {}
 
-    response = requests.get('http://ftp.nasdaqtrader.com/dynamic/SymDir/nasdaqtraded.txt')
-    traded_companies = response.text.split('\r\n')
-    tickers = set()
-    errors = []
+    for pf in partial_files:
+        partial_json = json.load(open(join(input_dir, pf), 'r'))
+        merged_data.update(partial_json)
 
-    for row in traded_companies:
-        try:
-            segments = row.split('|')
-            ticker = segments[1]
-            tickers.add(ticker.split('$')[0])
-        except Exception as e:
-            errors.append((row, str(e)))
-            continue
-
-    for row, error in errors:
-        logging.warning('The following error occurred while processing row %s: %s', row, error)
-
-    output_path = join(PROCESSED_DATA_DIR, output_name)
-    with open(output_path, 'w') as output_file:
-        sorted_tickers = sorted(list(tickers))
-        output_file.write('\n'.join(sorted_tickers))
+    prefix = basename(input_dir)
+    with open(join(PROCESSED_DATA_DIR, prefix + output_suffix), 'w') as w:
+        json.dump(merged_data, w, sort_keys=True)
