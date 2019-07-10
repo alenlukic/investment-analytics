@@ -29,3 +29,24 @@ def merge_stock_data(input_dir, output_suffix='_stock_data.json'):
 
     prefix = basename(input_dir)
     save_json(PROCESSED_DATA_DIR, prefix + output_suffix, merged_data, True)
+
+
+def deep_get(nested_object, path):
+    """ Gets deeply nested value from object.
+
+    :param nested_object: Deeply nested object (e.g. JSON represented as dict).
+    :param path: Ordered keys representing path to the value.
+    :return: Deeply nested value (or None).
+    """
+
+    n = len(path)
+    if n == 0:
+        return None
+
+    value = nested_object.get(path[0], None)
+    for i in range(1, n):
+        if value is None:
+            return value
+        value = value.get(path[i], None)
+
+    return value
