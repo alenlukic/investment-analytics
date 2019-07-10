@@ -4,7 +4,11 @@ import json
 import requests
 from datetime import datetime
 from enum import Enum
+from os import makedirs
 from os.path import join
+
+from src.utils.data_utils import merge_stock_data
+from src.utils.file_utils import save_file, save_json
 
 
 CONFIG = json.load(open('config.json', 'r'))
@@ -29,8 +33,7 @@ class IEXCloudAPI:
     def __init__(self, is_prod):
         """ Initializes class with API's base url and parameters (API token).
 
-        Parameters:
-            is_prod (boolean): indicates whether to use production endpoint.
+        :param is_prod: indicates whether to use production endpoint.
         """
 
         self.base_url = CONFIG['API_URL'] if is_prod else CONFIG['SANDBOX_API_URL']
@@ -39,8 +42,7 @@ class IEXCloudAPI:
     def get_advanced_stats(self, ticker):
         """ Make GET request to the /advanced-stats endpoint.
 
-        Parameters:
-            ticker (string): Ticker symbol for which to pull data.
+        :param ticker: Ticker symbol for which to pull data.
         """
 
         request_url = join(self.base_url, Endpoint.ADVANCED_STATS.value % ticker)
@@ -49,8 +51,7 @@ class IEXCloudAPI:
     def get_cash_flow(self, ticker):
         """ Make GET request to the /stock/cash-flow endpoint.
 
-        Parameters:
-            ticker (string): Ticker symbol for which to pull data.
+        :param ticker: Ticker symbol for which to pull data.
         """
 
         request_url = join(self.base_url, Endpoint.CASH_FLOW.value % ticker)
@@ -65,14 +66,13 @@ class IEXCloudAPI:
     def _get_response(self, request_url):
         """ Make GET request using the given URL, handle any errors, and return response content.
 
-        Parameters:
-            request_url (string): URL for which to make GET request.
+        :param request_url: URL for which to make GET request.
         """
 
         try:
             response = requests.get(request_url, params=self.params)
             if response.status_code != 200:
-                response_context = build_response_context(response)
+                response_context = self.error_response_context(response)
                 logging.warning('Got non-200 response while hitting %s: %s', request_url, json.dumps(response_context))
                 return {}
             return json.loads(response.content or {})
@@ -80,47 +80,43 @@ class IEXCloudAPI:
             logging.warning('The following exception occurred while hitting %s: %s', request_url, str(e))
             return {}
 
+    def _error_response_context(self, response):
+        """ Builds a dictionary containing useful API response data when a non-200 status code is received.
 
-def build_response_context(response):
-    """ Builds a dictionary containing useful API response data when a non-200 status code is received.
+        :param response: Response object.
+        """
 
-    Parameters:
-        response (requests.Response): Response object
-    """
-
-    return {
-        'Status': response.status_code,
-        'Reason': response.reason,
-        'Content': json.loads(response.content or {}),
-        'Headers': json.loads(response.headers or {}),
-        'Url': response.url
-    }
+        return {
+            'Status': response.status_code,
+            'Reason': response.reason,
+            'Content': json.loads(response.content or {}),
+            'Headers': json.loads(response.headers or {}),
+            'URL': response.url,
+            'Prod?': self.is_prod
+        }
 
 
-def get_symbols(output_name='all_iex_supported_tickers.txt'):
+def download_symbols(output_name='all_iex_supported_tickers.txt'):
     """ Gets JSON representation of all symbols supported on IEX Cloud.
 
-    Parameters:
-        output_name (str): file name in raw data directory where JSON dump should be saved.
+    :param output_name: file name in raw data directory where JSON dump should be saved.
     """
 
-    output_path = join(RAW_DATA_DIR, output_name)
     symbol_json = API.get_symbols()
     symbols = sorted([t['symbol'] for t in filter(lambda j: j['type'] == 'cs', symbol_json)])
-    with open(output_path, 'r') as output_file:
-        output_file.write('\n'.join(symbols))
+    save_file(RAW_DATA_DIR, output_name, '\n'.join(symbols))
 
 
 def ingest_stock_data(symbol_json='all_iex_supported_tickers.txt', output_name='stock_data_'):
     """ Ingests financial and technical indicator data for all actively traded stocks on NASDAQ.
 
-    Parameters:
-         symbol_json (string): file name in raw data directory containing IEX symbol JSON dump.
-         output_name (string): base file name for partial stock data JSON dumps in processed data directory.
+    :param symbol_json: file name in raw data directory containing IEX symbol JSON dump.
+    :param output_name: base file name for partial stock data JSON dumps in processed data directory.
     """
 
     input_path = join(RAW_DATA_DIR, symbol_json)
-    base_output_path = join(PROCESSED_DATA_DIR, datetime.today().strftime('%Y%m%d'), output_name)
+    output_dir = join(PROCESSED_DATA_DIR, datetime.today().strftime('%Y%m%d'))
+    makedirs(output_dir)
 
     with open(input_path, 'r') as input_file:
         symbols = [s.strip() for s in input_file.readlines()]
@@ -137,9 +133,10 @@ def ingest_stock_data(symbol_json='all_iex_supported_tickers.txt', output_name='
 
             # Dump data in segments
             if (i + 1) % 10 == 0 or i == n - 1:
-                with open(base_output_path + str(i + 1) + '.json', 'w') as output_file:
-                    json.dump(symbol_data, output_file, indent=2, sort_keys=True)
+                save_json(output_dir, output_name + str(i + 1) + '.json', symbol_data, True)
                 symbol_data = {}
+
+    merge_stock_data(output_dir)
 
 
 def build_argument_parser():
@@ -156,5 +153,5 @@ if __name__ == '__main__':
     args = build_argument_parser().parse_args()
     API = IEXCloudAPI(args.production)
     if args.symbols:
-        get_symbols()
+        download_symbols()
     ingest_stock_data()

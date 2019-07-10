@@ -3,6 +3,8 @@ import json
 from os import listdir
 from os.path import basename, join
 
+from src.utils.file_utils import save_json
+
 
 CONFIG = json.load(open('config.json', 'r'))
 LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.utils.data_utils')
@@ -12,12 +14,12 @@ logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG)
 
 
 def merge_stock_data(input_dir, output_suffix='_stock_data.json'):
-    """ Uses raw dump from NASDAQ's FTP server to generate a list containing all tickers traded on the exchange.
+    """ Merge partial stock data files.
 
-    Parameters:
-        input_dir (str): directory containing partial stock data dumps
-        output_suffix (str): suffix of output file name (will be saved to processed data directory)
+    :param input_dir: directory containing partial stock data dumps.
+    :param output_suffix: suffix of output file name (will be saved to processed data directory).
     """
+
     partial_files = [f for f in filter(lambda j: j.endswith('.json'), listdir(input_dir))]
     merged_data = {}
 
@@ -26,5 +28,4 @@ def merge_stock_data(input_dir, output_suffix='_stock_data.json'):
         merged_data.update(partial_json)
 
     prefix = basename(input_dir)
-    with open(join(PROCESSED_DATA_DIR, prefix + output_suffix), 'w') as w:
-        json.dump(merged_data, w, sort_keys=True)
+    save_json(PROCESSED_DATA_DIR, prefix + output_suffix, merged_data, True)
