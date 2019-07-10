@@ -13,22 +13,15 @@ PROCESSED_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'processed')
 logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG)
 
 
-def merge_stock_data(input_dir, output_suffix='_stock_data.json'):
-    """ Merge partial stock data files.
+def append_if_exists(target_list, value):
+    """ Appends value to the list if it's not None.
 
-    :param input_dir: directory containing partial stock data dumps.
-    :param output_suffix: suffix of output file name (will be saved to processed data directory).
+    :param target_list: list to append value to.
+    :param value: the potential value.
     """
 
-    partial_files = [f for f in filter(lambda j: j.endswith('.json'), listdir(input_dir))]
-    merged_data = {}
-
-    for pf in partial_files:
-        partial_json = json.load(open(join(input_dir, pf), 'r'))
-        merged_data.update(partial_json)
-
-    prefix = basename(input_dir)
-    save_json(PROCESSED_DATA_DIR, prefix + output_suffix, merged_data, True)
+    if value is not None:
+        target_list.append(value)
 
 
 def deep_get(nested_object, path):
@@ -50,3 +43,38 @@ def deep_get(nested_object, path):
         value = value.get(path[i], None)
 
     return value
+
+
+def merge_stock_data_partials(input_dir, output_suffix='_stock_data.json'):
+    """ Merge partial stock data files.
+
+    :param input_dir: directory containing partial stock data dumps.
+    :param output_suffix: suffix of output file name (will be saved to processed data directory).
+    """
+
+    partial_files = [f for f in filter(lambda j: j.endswith('.json'), listdir(input_dir))]
+    merged_data = {}
+
+    for pf in partial_files:
+        partial_json = json.load(open(join(input_dir, pf), 'r'))
+        merged_data.update(partial_json)
+
+    save_json(PROCESSED_DATA_DIR, basename(input_dir) + output_suffix, merged_data, True)
+
+
+def merge_stock_data_to_master(source_file):
+    """ Merge given stock data file to the master file.
+
+    :param source_file: Stock data file with which to update the master file.
+    """
+
+    source_json = json.load(open(join(PROCESSED_DATA_DIR, source_file), 'r'))
+    master_json = json.load(open(join(PROCESSED_DATA_DIR, 'stock_data_master.json'), 'r'))
+
+    for symbol, symbol_data in source_json.items():
+        if symbol not in master_json:
+            continue
+        for stat_name, stat_value in symbol_data.items():
+            master_json[symbol][stat_name] = stat_value
+
+    save_json(PROCESSED_DATA_DIR, 'stock_data_master_updated.json', master_json, sort_keys=True)

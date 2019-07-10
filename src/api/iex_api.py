@@ -4,11 +4,10 @@ import json
 import requests
 from datetime import datetime
 from enum import Enum
-from os import makedirs
 from os.path import join
 
-from src.utils.data_utils import merge_stock_data
-from src.utils.file_utils import save_file, save_json
+from src.utils.data_utils import merge_stock_data_partials
+from src.utils.file_utils import create_directory, save_file, save_json
 
 
 CONFIG = json.load(open('config.json', 'r'))
@@ -47,43 +46,34 @@ class IEXCloudAPI:
         self.base_url = CONFIG['API_URL'] if is_prod else CONFIG['SANDBOX_API_URL']
         self.params = {'token': CONFIG['API_KEY'] if is_prod else CONFIG['SANDBOX_API_KEY']}
 
-    def get_function(self, function_name):
-        """ Returns specified class function.
-
-        :param function_name: Name of the function.
-        :return: The function object.
-        """
-
-        return self.__getattribute__(function_name)
-
-    def get_advanced_stats(self, ticker):
+    def get_advanced_stats(self, symbol):
         """ Make GET request to the /stock/advanced-stats endpoint.
 
-        :param ticker: Ticker symbol for which to pull data.
+        :param symbol: Ticker symbol for which to pull data.
         :return: dictionary containing all keys in /stock/advanced-stats.
         """
 
-        request_url = join(self.base_url, Endpoint.ADVANCED_STATS.value % ticker)
+        request_url = join(self.base_url, Endpoint.ADVANCED_STATS.value % symbol)
         return self._get_response(request_url)
 
-    def get_cash_flow(self, ticker):
+    def get_cash_flow(self, symbol):
         """ Make GET request to the /stock/cash-flow endpoint.
 
-        :param ticker: Ticker symbol for which to pull data.
+        :param symbol: Ticker symbol for which to pull data.
         :return: dictionary containing all keys in /stock/cash-flow.
         """
 
-        request_url = join(self.base_url, Endpoint.CASH_FLOW.value % ticker)
+        request_url = join(self.base_url, Endpoint.CASH_FLOW.value % symbol)
         return self._get_response(request_url)
 
-    def get_price(self, ticker):
+    def get_price(self, symbol):
         """ Make GET request to the /stock/{symbol}/price endpoint.
 
-        :param ticker: Ticker symbol for which to pull data.
+        :param symbol: Ticker symbol for which to pull data.
         :return: number representing most recent stock price.
         """
 
-        request_url = join(self.base_url, Endpoint.PRICE.value % ticker)
+        request_url = join(self.base_url, Endpoint.PRICE.value % symbol)
         return self._get_response(request_url)
 
     def get_symbols(self):
@@ -151,7 +141,7 @@ def ingest_stock_data(endpoints, symbol_json='all_iex_supported_tickers.txt', ou
 
     input_path = join(RAW_DATA_DIR, symbol_json)
     output_dir = join(PROCESSED_DATA_DIR, datetime.today().strftime('%Y%m%d'))
-    makedirs(output_dir)
+    create_directory(output_dir)
 
     with open(input_path, 'r') as input_file:
         symbols = [s.strip() for s in input_file.readlines()]
@@ -161,18 +151,15 @@ def ingest_stock_data(endpoints, symbol_json='all_iex_supported_tickers.txt', ou
         for i, symbol in enumerate(symbols):
             print('Processing symbol %s (%d of %d)' % (symbol, i + 1, n))
 
-            # symbol_data[symbol] = {
-            #     Endpoint.ADVANCED_STATS.name: API.get_advanced_stats(symbol),
-            #     Endpoint.CASH_FLOW.name: API.get_cash_flow(symbol)
-            # }
-            symbol_data[symbol] = {e: API.get_function(ENDPOINT_TO_FUNCTION[e])(symbol) for e in endpoints}
+            api_args = {'symbol': symbol}
+            symbol_data[symbol] = {e: getattr(API, ENDPOINT_TO_FUNCTION[e])(**api_args) for e in endpoints}
 
             # Dump data in segments
             if (i + 1) % 10 == 0 or i == n - 1:
                 save_json(output_dir, output_name + str(i + 1) + '.json', symbol_data, True)
                 symbol_data = {}
 
-    merge_stock_data(output_dir)
+    merge_stock_data_partials(output_dir)
 
 
 def build_argument_parser():
