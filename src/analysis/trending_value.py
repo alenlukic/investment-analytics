@@ -104,9 +104,3 @@ class TrendingValue:
         self.price_to_sales_ratios = sorted(self.price_to_sales_ratios)
         self.divided_yields = sorted(self.divided_yields, reverse=True)
         self.earnings_yields = sorted(self.earnings_yields, reverse=True)
-
-
-
-
-
-
