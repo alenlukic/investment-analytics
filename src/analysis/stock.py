@@ -17,44 +17,6 @@ class Stock:
 
     # Metric calculation functions below.
 
-    def price_to_book_ratio(self):
-        """ :returns: P/B ratio. """
-        return deep_get(self.stock_data, ['ADVANCED_STATS', 'priceToBook'])
-
-    def price_to_earnings_ratio(self):
-        """ :returns: P/E ratio. """
-        return deep_get(self.stock_data, ['ADVANCED_STATS', 'peRatio'])
-
-    def price(self):
-        """ :returns: Stock price. """
-        return self.stock_data['PRICE']
-
-    def cash_flow(self):
-        """ :returns: Company cash flow. """
-
-        cash_flow_array = deep_get(self.stock_data, ['CASH_FLOW', 'cashflow'])
-        if cash_flow_array is None or len(cash_flow_array) == 0:
-            return None
-
-        return cash_flow_array[0].get('cashFlow', None)
-
-    def price_to_cash_flow_ratio(self):
-        """ :returns: P/CF ratio. """
-
-        price = self.price()
-        if price is None:
-            return None
-
-        cash_flow = self.cash_flow()
-        if cash_flow is None:
-            return None
-
-        return price / float(cash_flow)
-
-    def price_to_sales_ratio(self):
-        """ :returns: P/S ratio. """
-        return deep_get(self.stock_data, ['ADVANCED_STATS', 'priceToSales'])
-
     def dividend_yield(self):
         """ :returns: Dividend yield. """
         return deep_get(self.stock_data, ['ADVANCED_STATS', 'dividendYield'])
@@ -66,6 +28,31 @@ class Stock:
     def enterprise_value(self):
         """ :returns Enterprise value. """
         return deep_get(self.stock_data, ['ADVANCED_STATS', 'enterpriseValue'])
+
+    def price(self):
+        """ :returns: Stock price. """
+        return self.stock_data['PRICE']
+
+    def price_to_book_ratio(self):
+        """ :returns: P/B ratio. """
+        return deep_get(self.stock_data, ['ADVANCED_STATS', 'priceToBook'])
+
+    def price_to_earnings_ratio(self):
+        """ :returns: P/E ratio. """
+        return deep_get(self.stock_data, ['ADVANCED_STATS', 'peRatio'])
+
+    def price_to_sales_ratio(self):
+        """ :returns: P/S ratio. """
+        return deep_get(self.stock_data, ['ADVANCED_STATS', 'priceToSales'])
+
+    def cash_flow(self):
+        """ :returns: Company cash flow. """
+
+        cash_flow_array = deep_get(self.stock_data, ['CASH_FLOW', 'cashflow'])
+        if cash_flow_array is None or len(cash_flow_array) == 0:
+            return None
+
+        return cash_flow_array[0].get('cashFlow', None)
 
     def earnings_yield(self):
         """ :returns: Earnings yield (EBIDTA / EV). """
@@ -79,6 +66,19 @@ class Stock:
             ev = 1
 
         return ebidta / float(ev)
+
+    def price_to_cash_flow_ratio(self):
+        """ :returns: P/CF ratio. """
+
+        price = self.price()
+        if price is None:
+            return None
+
+        cash_flow = self.cash_flow()
+        if cash_flow is None:
+            return None
+
+        return price / float(cash_flow)
 
 
 class RankedStock(Stock):

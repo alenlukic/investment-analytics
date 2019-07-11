@@ -1,7 +1,9 @@
+import math
 import sys
 
 
 MAX_VALUE = sys.maxsize
+ZERO_CUTOFF = math.pow(10, -9)
 
 
 def calculate_percentile(metric_value, ordered_metrics, num_metrics, default=50.0):
@@ -23,3 +25,7 @@ def calculate_percentile(metric_value, ordered_metrics, num_metrics, default=50.
             return 100.0 * i / num_metrics
 
     return default
+
+
+def is_close_to_zero(num):
+    return abs(num) < ZERO_CUTOFF

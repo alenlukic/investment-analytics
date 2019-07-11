@@ -2,7 +2,6 @@ import json
 from os.path import join
 
 from src.analysis.stock import RankedStock
-from src.utils.data_utils import deep_get
 
 CONFIG = json.load(open('config.json', 'r'))
 LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.analysis.trending_value')

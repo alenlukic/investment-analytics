@@ -1,11 +1,13 @@
 import json
 import math
 from os.path import join
+from tabulate import tabulate
 
 from src.analysis.stock import RankedStock
 from src.analysis.strategy import Strategy
 from src.utils.data_utils import append_if_exists, deep_get
 from src.utils.math_utils import calculate_percentile
+
 
 CONFIG = json.load(open('config.json', 'r'))
 LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.analysis.trending_value')
@@ -30,7 +32,7 @@ class TrendingValueStock(RankedStock):
         """
 
         self.percentiles = percentiles
-        self.set_rank(sum(self.percentiles.values()))
+        self.set_rank(sum(percentiles.values()))
 
     def get_percentiles(self):
         """ :returns: The metric percentile dictionary. """
@@ -60,9 +62,9 @@ class TrendingValue(Strategy):
 
         return stocks
 
-    def calculate_metrics(self):
+    def calculate_metric_percentiles(self):
         # Get metrics for each stock
-        for stock in self.ranked_stocks:
+        for stock in self.stocks:
             append_if_exists(self.price_to_book_ratios, stock.get_price_to_book_ratio())
             append_if_exists(self.price_to_earnings_ratios, stock.get_price_to_earnings_ratio())
             append_if_exists(self.price_to_cash_flow_ratios, stock.get_price_to_cash_flow_ratio())
@@ -79,3 +81,16 @@ class TrendingValue(Strategy):
         self.earnings_yields = sorted(self.earnings_yields, reverse=True)
 
         # Generate metric percentiles for each stock
+        for stock in self.stocks:
+            percentiles = {
+                'priceToBook': calculate_percentile(stock.price_to_book_ratio(), self.price_to_book_ratios),
+                'peRatio': calculate_percentile(stock.price_to_earnings_ratio(), self.price_to_earnings_ratios),
+                'priceToCashFlow': calculate_percentile(stock.price_to_cash_flow_ratio(), self.price_to_cash_flow_ratios),
+                'priceToSales': calculate_percentile(stock.price_to_sales_ratio(), self.price_to_sales_ratios),
+                'dividendYield': calculate_percentile(stock.dividend_yield(), self.divided_yields),
+                'earningsYield': calculate_percentile(stock.earnings_yield(), self.earnings_yields)
+            }
+            stock.set_percentiles(percentiles)
+
+    def rank_stocks(self):
+        self.stocks = sorted(self.stocks)
