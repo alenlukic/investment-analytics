@@ -140,7 +140,7 @@ def ingest_stock_data(endpoints, symbol_json='all_iex_supported_tickers.txt', ou
     """
 
     input_path = join(RAW_DATA_DIR, symbol_json)
-    output_dir = join(PROCESSED_DATA_DIR, datetime.today().strftime('%Y%m%d'))
+    output_dir = join(PROCESSED_DATA_DIR, datetime.today().strftime('%Y%m%d') + '_partials')
     create_directory(output_dir)
 
     with open(input_path, 'r') as input_file:

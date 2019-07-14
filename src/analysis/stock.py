@@ -49,6 +49,10 @@ class Stock:
         """ :returns: Six month % change in price. """
         return deep_get(self.stock_data, ['ADVANCED_STATS', 'month6ChangePercent'])
 
+    def symbol(self):
+        """ :returns: Stock's ticker symbol. """
+        return self.symbol()
+
     def cash_flow(self):
         """ :returns: Company cash flow. """
 
@@ -92,22 +96,39 @@ class RankedStock(Stock):
         """ Constructor. Initializes the rank. """
 
         Stock.__init__(self, symbol, stock_data)
-        self.rank = MAX_VALUE
+        self.rank_factors = {}
+        self.comparison_metrics = {}
+        self.comparison_value = MAX_VALUE
 
-    def rank(self):
-        """ :returns: Stock rank. """
-        return self.rank
+    def comparison_value(self):
+        """ :returns: comparison value (used when sorting). """
+        return self.comparison_value()
 
-    def set_rank(self, rank):
-        """ Sets stock rank.
+    def rank_factors(self):
+        """ :returns: dictionary of rank factors. """
+        return self.rank_factors
 
-        :param rank: rank to set.
+    def set_comparison_metrics(self, comparison_metrics):
+        """
+        Set the dictionary of comparison metrics (and also set the rank as the sum of these factors).
+
+        :param comparison_metrics: dictionary mapping metric name to value.
         """
 
-        self.rank = rank
+        self.comparison_metrics = comparison_metrics
+        self.comparison_value = sum(comparison_metrics.values())
+
+    def set_rank_factors(self, rank_factors):
+        """
+        Set the dictionary of rank factors (and also set the rank as the sum of these factors).
+
+        :param rank_factors: dictionary mapping rank factor name to value.
+        """
+
+        self.rank_factors = rank_factors
 
     def __eq__(self, other):
-        return self.get_rank() == other.get_rank()
+        return self.comparison_value() == other.comparison_value()
 
     def __lt__(self, other):
-        return self.get_rank() < other.get_rank()
+        return self.comparison_value() < other.get_comparison_value()

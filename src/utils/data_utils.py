@@ -2,6 +2,7 @@ import logging
 import json
 from os import listdir
 from os.path import basename, join
+from statistics import median
 
 from src.utils.file_utils import save_json
 
@@ -78,3 +79,9 @@ def merge_stock_data_to_master(source_file):
             master_json[symbol][stat_name] = stat_value
 
     save_json(PROCESSED_DATA_DIR, 'stock_data_master_updated.json', master_json, sort_keys=True)
+
+
+def pad_with_median(numbers, n):
+    diff = n - len(numbers)
+    med = median(numbers)
+    return numbers + [med for i in range(diff)]
