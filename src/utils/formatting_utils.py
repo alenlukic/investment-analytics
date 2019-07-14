@@ -2,9 +2,17 @@ from src.utils.math_utils import is_close_to_zero
 
 
 def format_decimal(decimal):
+    """
+    Formats input decimal as a sting.
+
+    :param decimal: input exponent to format.
+    :return: formatted decimal (3 decimal places).
+    """
+
     if decimal is None:
         return 'N/A'
 
+    # Actually an exponent, use different formatting function
     if 'e' in str(decimal):
         return format_exponent(decimal)
 
@@ -15,20 +23,34 @@ def format_decimal(decimal):
 
 
 def format_exponent(exponent):
+    """
+    Formats input exponent as a string.
+
+    :param exponent: input exponent to format.
+    :return: formatted exponent (3 decimal places).
+    """
+
     return '{0:.3e}'.format(exponent)
 
 
-def format_rank(rank):
-    str_rank = str(rank)
+def format_rank(num):
+    """
+    Takes an input number and returns a formatted rank string (e.g. 1 -> "1st", 23 -> "23rd").
+
+    :param num: number to format as a rank.
+    :return: formatted rank string.
+    """
+
+    rank = str(num)
     suffix = 'th'
 
-    if str_rank[-1] == '1':
+    if rank[-1] == '1':
         suffix = 'st'
-    if str_rank[-1] == '2':
+    if rank[-1] == '2':
         suffix = 'nd'
-    if str_rank[-1] == '3':
+    if rank[-1] == '3':
         suffix = 'rd'
-    if len(str_rank) > 1 and str_rank[-2] == '1':
+    if len(rank) > 1 and rank[-2] == '1':
         suffix = 'th'
 
-    return ' (' + str_rank + suffix + ')'
+    return '(' + rank + suffix + ')'

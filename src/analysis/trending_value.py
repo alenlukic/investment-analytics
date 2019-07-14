@@ -1,5 +1,6 @@
 import json
 import math
+from copy import deepcopy
 from os.path import join
 from tabulate import tabulate
 
@@ -26,7 +27,8 @@ class TrendingValueStock(RankedStock):
         self.percentiles = {}
 
     def set_percentiles(self, percentiles):
-        """ Set the dictionary of metric percentiles (and also set the rank as the sum of these percentiles).
+        """
+        Set the dictionary of metric percentiles (and also set the rank as the sum of these percentiles).
 
         :param percentiles: dictionary mapping metrics to percentiles relative to the population of stocks.
         """
@@ -93,4 +95,24 @@ class TrendingValue(Strategy):
             stock.set_percentiles(percentiles)
 
     def rank_stocks(self):
-        self.stocks = sorted(self.stocks)
+        """
+        Rank the stocks. Methodology:
+
+        1. Select the 10% most undervalued companies using the Value Composite Two indicator.
+        2. Select 25 stocks with the best six-month price appreciation.
+        """
+
+        # Select top 10% of stocks based on intermediate ranking
+        decile = int(self.num_stocks * 0.1)
+        top_decile = deepcopy(sorted(self.stocks)[0:decile])
+
+        # Set six-month price appreciation as new percentile dictionary
+        for stock in top_decile:
+            stock.set_percentiles({'month6ChangePercent': stock.six_month_percent_delta()})
+
+        # Re-rank top decile
+        self.selected_stocks = sorted(top_decile, reverse=True)
+
+
+
+

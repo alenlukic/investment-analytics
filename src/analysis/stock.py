@@ -1,5 +1,5 @@
 from src.utils.data_utils import deep_get
-from src.utils.math_utils import MAX_VALUE
+from src.utils.math_utils import is_close_to_zero, MAX_VALUE
 
 
 class Stock:
@@ -45,6 +45,10 @@ class Stock:
         """ :returns: P/S ratio. """
         return deep_get(self.stock_data, ['ADVANCED_STATS', 'priceToSales'])
 
+    def six_month_percent_delta(self):
+        """ :returns: Six month % change in price. """
+        return deep_get(self.stock_data, ['ADVANCED_STATS', 'month6ChangePercent'])
+
     def cash_flow(self):
         """ :returns: Company cash flow. """
 
@@ -75,7 +79,7 @@ class Stock:
             return None
 
         cash_flow = self.cash_flow()
-        if cash_flow is None:
+        if cash_flow is None or is_close_to_zero(cash_flow):
             return None
 
         return price / float(cash_flow)

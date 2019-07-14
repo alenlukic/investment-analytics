@@ -28,4 +28,11 @@ def calculate_percentile(metric_value, ordered_metrics, num_metrics, default=50.
 
 
 def is_close_to_zero(num):
+    """
+    Returns true if input is within some small margin of 0.
+
+    :param num: number to test.
+    :return: True if input number close to 0, else False.
+    """
+
     return abs(num) < ZERO_CUTOFF
