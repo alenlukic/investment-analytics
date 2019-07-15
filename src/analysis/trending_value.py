@@ -109,8 +109,7 @@ class TrendingValue(Strategy):
         Strategy.save_ranking(self, file_prefix)
 
     def _initialize_stocks(self):
-        """ Initializes set of stocks by filtering out any companies with a market cap under $200M.
-        """
+        """ Initializes set of stocks by filtering out any companies with a market cap under $200M. """
 
         stocks = []
 
