@@ -45,6 +45,7 @@ class IEXCloudAPI:
 
         self.base_url = CONFIG['API_URL'] if is_prod else CONFIG['SANDBOX_API_URL']
         self.params = {'token': CONFIG['API_KEY'] if is_prod else CONFIG['SANDBOX_API_KEY']}
+        self.is_prod = is_prod
 
     def get_advanced_stats(self, symbol):
         """ Make GET request to the /stock/advanced-stats endpoint.
@@ -95,7 +96,7 @@ class IEXCloudAPI:
         try:
             response = requests.get(request_url, params=self.params)
             if response.status_code != 200:
-                response_context = self.error_response_context(response)
+                response_context = self._error_response_context(response)
                 logging.warning('Got non-200 response while hitting %s: %s', request_url, json.dumps(response_context))
                 return {}
             return json.loads(response.content or {})
@@ -119,20 +120,22 @@ class IEXCloudAPI:
         }
 
 
-def download_symbols(output_name='all_iex_supported_tickers.txt'):
+def download_symbols(api, output_name='all_iex_supported_tickers.txt'):
     """ Gets JSON representation of all symbols supported on IEX Cloud.
 
+    :param api: IEXCloudAPI instance.
     :param output_name: file name in raw data directory where JSON dump should be saved.
     """
 
-    symbol_json = API.get_symbols()
+    symbol_json = api.get_symbols()
     symbols = sorted([t['symbol'] for t in filter(lambda j: j['type'] == 'cs', symbol_json)])
     save_file(RAW_DATA_DIR, output_name, '\n'.join(symbols))
 
 
-def ingest_stock_data(endpoints, symbol_json='all_iex_supported_tickers.txt', output_name='stock_data_'):
+def ingest_stock_data(api, endpoints, symbol_json='all_iex_supported_tickers.txt', output_name='stock_data_'):
     """ Ingests financial and technical indicator data for all actively traded stocks on NASDAQ.
 
+    :param api: IEXCloudAPI instance.
     :param endpoints: endpoints to hit during ingestion.
     :param symbol_json: file name in raw data directory containing IEX symbol JSON dump.
     :param output_name: base file name for partial stock data JSON dumps in processed data directory.
@@ -151,7 +154,7 @@ def ingest_stock_data(endpoints, symbol_json='all_iex_supported_tickers.txt', ou
             print('Processing symbol %s (%d of %d)' % (symbol, i + 1, n))
 
             api_args = {'symbol': symbol}
-            symbol_data[symbol] = {e: getattr(API, ENDPOINT_TO_FUNCTION[e])(**api_args) for e in endpoints}
+            symbol_data[symbol] = {e: getattr(api, ENDPOINT_TO_FUNCTION[e])(**api_args) for e in endpoints}
 
             # Dump data in segments
             if (i + 1) % 10 == 0 or i == n - 1:
