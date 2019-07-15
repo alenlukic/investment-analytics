@@ -15,8 +15,8 @@ class TrendingSuperstars(TrendingValue):
         """
 
         TrendingValue.__init__(self, rank_factors, stock_data_file)
-        column_headings = SUPERSTAR_RANK_FACTOR + [RankFactor(rf.name, rf.priority + 1) for rf in rank_factors]
-        self.column_headings = sorted(column_headings)
+        new_rank_factors = SUPERSTAR_RANK_FACTOR + [RankFactor(rf.name, rf.priority + 1) for rf in rank_factors]
+        self.rank_factors = sorted(new_rank_factors)
 
     def rank_stocks(self):
         """ Rank the stocks. Methodology:
@@ -27,15 +27,6 @@ class TrendingSuperstars(TrendingValue):
         """
 
         TrendingValue.rank_stocks(self)
-
-        for stock in self.selected_stocks:
-            stock_rank_factors = stock.get_rank_factors()
-            comparison_value = [1 if stock_rank_factors[f] <= 10 else 0 for f in filter(lambda x:
-                                                                                        x != 'month6ChangePercent', self.rank_factors.values())]
-            stock.set_comparison_value(comparison_value)
-
-        self.selected_stocks = sorted(self.selected_stocks, reverse=True)
-        self._create_ranking_table()
 
     def _create_ranking_table(self):
         """ Creates formatted table of ranked stocks. """
