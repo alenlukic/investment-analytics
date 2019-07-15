@@ -15,9 +15,13 @@ class RankFactor:
         self.priority = priority
         self.format_function = format_function
 
-    def format_function(self):
+    def get_format_function(self):
         """ :returns: function to use when formatting this factor. """
         return self.format_function
+
+    def init(self, priority):
+        """ :returns: new instance with updated priority. """
+        return RankFactor(self.name, priority, self.format_function)
 
     def __eq__(self, other):
         return self.priority == other.priority

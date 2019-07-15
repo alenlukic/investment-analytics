@@ -9,6 +9,7 @@ from src.utils.formatting_utils import format_currency, format_rank
 from src.utils.math_utils import MAX_VALUE
 from src.utils.rank_utils import RankFactor
 
+
 CONFIG = json.load(open('config.json', 'r'))
 PROCESSED_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'processed')
 
@@ -43,10 +44,25 @@ class Strategy:
         """ Rank the stocks. """
 
         self.selected_stocks = sorted(self.stocks)
-        for i, stock in enumerate(self.selected_stocks):
-            stock.update_rank_factors({'Rank': i + 1})
+        self._set_ranks()
 
-        self.ranking_table = self._create_ranking_table()
+    def create_ranking_table(self):
+        """ Creates formatted table of ranked stocks. """
+
+        table = [[c.name for c in self.rank_factors]]
+
+        for stock in self.selected_stocks:
+            row = []
+            stock_rank_factors = stock.get_rank_factors()
+
+            for factor in self.rank_factors:
+                stock_metric_value = stock_rank_factors[factor.name]
+                format_function = factor.get_format_function()
+                row.append(format_function(stock_metric_value))
+
+            table.append(row)
+
+        self.ranking_table = table
 
     def print_ranking(self, num=None):
         """ Prints formatted ranking table.
@@ -69,24 +85,12 @@ class Strategy:
         save_file(output_dir, ranking_file_prefix + '.txt', tabulate(self.ranking_table))
         save_json(output_dir, ranking_file_prefix + '.json', {'ranking': self.ranking_table})
 
-    def _create_ranking_table(self):
-        """ Creates formatted table of ranked stocks. """
-
-        table = [[c.name for c in self.rank_factors]]
-
-        for stock in self.selected_stocks:
-            row = []
-            stock_rank_factors = stock.get_rank_factors()
-
-            for factor in self.rank_factors:
-                stock_metric_value = stock_rank_factors[factor.name]
-                format_function = factor.format_function()
-                row.append(format_function(stock_metric_value))
-
-            table.append(row)
-
-        return table
-
     def _initialize_stocks(self):
         """ Initialize set of stocks to analyze. """
         return [RankedStock(symbol, stock_data) for symbol, stock_data in self.stock_data.items()]
+
+    def _set_ranks(self):
+        """ Set the Rank column on newly ranked stocks. """
+
+        for i, stock in enumerate(self.selected_stocks):
+            stock.update_rank_factors({'Rank': i + 1})
