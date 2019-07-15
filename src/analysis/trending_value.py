@@ -126,3 +126,4 @@ if __name__ == '__main__':
     ranker.rank_stocks()
     ranker.create_ranking_table()
     ranker.print_ranking()
+    ranker.save_ranking('trending_value_')
