@@ -115,7 +115,14 @@ class RankedStock(Stock):
         """
 
         self.comparison_metrics = comparison_metrics
-        self.comparison_value = sum(comparison_metrics.values())
+        self.set_comparison_value(sum(comparison_metrics.values()))
+
+    def set_comparison_value(self, comparison_value):
+        """ Set comparison value.
+
+        :param comparison_value: comparison value to set.
+        """
+        self.comparison_value = comparison_value
 
     def set_rank_factors(self, rank_factors):
         """ Set the dictionary of rank factors (and also set the rank as the sum of these factors).

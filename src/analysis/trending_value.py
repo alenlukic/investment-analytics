@@ -101,13 +101,6 @@ class TrendingValue(Strategy):
         self.selected_stocks = sorted(top_decile, reverse=True)
         self.ranking_table = self._create_ranking_table()
 
-    def save_ranking(self, file_prefix='trending_value_'):
-        """ Saves formatted stock ranking to disk.
-
-        :param file_prefix: file name prefix.
-        """
-        Strategy.save_ranking(self, file_prefix)
-
     def _initialize_stocks(self):
         """ Initializes set of stocks by filtering out any companies with a market cap under $200M. """
 
