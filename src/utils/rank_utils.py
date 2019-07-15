@@ -16,6 +16,7 @@ class RankFactor:
         self.format_function = format_function
 
     def format_function(self):
+        """ :returns: function to use when formatting this factor. """
         return self.format_function
 
     def __eq__(self, other):
