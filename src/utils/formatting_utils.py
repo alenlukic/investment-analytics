@@ -1,12 +1,13 @@
 from src.utils.math_utils import is_close_to_zero
 
 
-def format_decimal(decimal):
+def format_decimal(decimal, n=3):
     """
     Formats input decimal as a sting.
 
     :param decimal: input exponent to format.
-    :return: formatted decimal (3 decimal places).
+    :param n: number of decimal places.
+    :return: formatted decimal (n decimal places).
     """
 
     if decimal is None:
@@ -19,7 +20,7 @@ def format_decimal(decimal):
     if is_close_to_zero(decimal):
         return '0'
 
-    return '{0:.3f}'.format(decimal)
+    return ('{0:.' + str(n) + 'f}').format(decimal)
 
 
 def format_exponent(exponent):
