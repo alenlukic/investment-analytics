@@ -1,6 +1,7 @@
 from src.analysis.trending_value import TrendingValue, TRENDING_VALUE_RANK_FACTORS
 from src.utils.rank_utils import RankFactor
 
+
 SUPERSTAR_RANK_FACTOR = [RankFactor('S-RANK', 4)]
 
 

@@ -11,7 +11,6 @@ from src.utils.rank_utils import RankFactor
 
 
 CONFIG = json.load(open('config.json', 'r'))
-LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.analysis.trending_value')
 PROCESSED_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'processed')
 
 MIN_MARKET_CAP = 2 * math.pow(10, 8)
