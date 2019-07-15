@@ -47,6 +47,22 @@ def deep_get(nested_object, path, default=None):
     return value
 
 
+def merge_dictionaries(dicts):
+    """ Merges the given list of dictionaries. Note: if duplicate keys exist across the dicts, then only the value of
+    the last such key seen will be preserved.
+
+    :param dicts: list of dictionaries to merge.
+    :return: merged dictionary.
+    """
+
+    merged = {}
+
+    for d in dicts:
+        merged.update(d)
+
+    return merged
+
+
 def merge_stock_data_partials(input_dir, output_suffix='_stock_data.json'):
     """ Merge partial stock data files.
 

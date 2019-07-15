@@ -5,12 +5,20 @@ from tabulate import tabulate
 
 from src.analysis.stock import RankedStock
 from src.utils.file_utils import save_file, save_json
-from src.utils.formatting_utils import format_currency, format_decimal, format_rank
+from src.utils.formatting_utils import format_currency, format_rank
 from src.utils.math_utils import MAX_VALUE
+from src.utils.rank_utils import RankFactor
 
 CONFIG = json.load(open('config.json', 'r'))
 LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.analysis.trending_value')
 PROCESSED_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'processed')
+
+STOCK_INFO_FACTORS = [
+    RankFactor('Rank', 0, format_rank),
+    RankFactor('Company Name', 1, lambda x: x),
+    RankFactor('Symbol', 2, lambda x: x),
+    RankFactor('Price', 3, format_currency)
+]
 
 
 class Strategy:
@@ -19,15 +27,14 @@ class Strategy:
     def __init__(self, rank_factors, stock_data_file='stock_data_master.json'):
         """ Constructor.
 
-        :param rank_factors: dictionary mapping formatted column headings to rank factor names.
+        :param rank_factors: list of ranking factors to include in output ranking in addition to STOCK_INFO_FACTORS.
         :param stock_data_file: JSON file containing structured stock data.
         """
 
         self.stock_data = json.load(open(join(PROCESSED_DATA_DIR, stock_data_file), 'r'))
         self.stocks = self._initialize_stocks()
         self.num_stocks = len(self.stocks)
-        self.rank_factors = rank_factors
-        self.column_headings = sorted(rank_factors.keys())
+        self.rank_factors = sorted(STOCK_INFO_FACTORS + rank_factors)
 
         # Set after ranking
         self.selected_stocks = []
@@ -37,6 +44,9 @@ class Strategy:
         """ Rank the stocks. """
 
         self.selected_stocks = sorted(self.stocks)
+        for i, stock in enumerate(self.selected_stocks):
+            stock.update_rank_factors({'Rank': i + 1})
+
         self.ranking_table = self._create_ranking_table()
 
     def print_ranking(self, num=None):
@@ -63,15 +73,16 @@ class Strategy:
     def _create_ranking_table(self):
         """ Creates formatted table of ranked stocks. """
 
-        table = [['Rank', 'Company Name', 'Symbol', 'Price'] + self.column_headings]
+        table = [[c.name for c in self.rank_factors]]
 
-        for i, stock in enumerate(self.selected_stocks):
-            row = [format_rank(i + 1), stock.get_company_name(), stock.get_symbol(), format_currency(stock.price())]
+        for stock in self.selected_stocks:
+            row = []
             stock_rank_factors = stock.get_rank_factors()
 
-            for heading in self.column_headings:
-                stock_metric_value = stock_rank_factors[self.rank_factors[heading]]
-                row.append(format_decimal(stock_metric_value))
+            for factor in self.rank_factors:
+                stock_metric_value = stock_rank_factors[factor.name]
+                format_function = factor.format_function()
+                row.append(format_function(stock_metric_value))
 
             table.append(row)
 

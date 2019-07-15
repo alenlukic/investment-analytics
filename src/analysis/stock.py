@@ -125,12 +125,20 @@ class RankedStock(Stock):
         self.comparison_value = comparison_value
 
     def set_rank_factors(self, rank_factors):
-        """ Set the dictionary of rank factors (and also set the rank as the sum of these factors).
+        """ Set the dictionary of rank factors.
 
         :param rank_factors: dictionary mapping rank factor name to value.
         """
 
         self.rank_factors = rank_factors
+
+    def update_rank_factors(self, rank_factors_update):
+        """ Update dictionary of rank factors.
+
+        :param rank_factors_update: dictionary of additional rank factors.
+        """
+
+        self.rank_factors.update(rank_factors_update)
 
     def __eq__(self, other):
         return self.comparison_value == other.comparison_value

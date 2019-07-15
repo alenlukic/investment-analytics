@@ -1,4 +1,7 @@
 from src.analysis.trending_value import TrendingValue, TRENDING_VALUE_RANK_FACTORS
+from src.utils.rank_utils import RankFactor
+
+SUPERSTAR_RANK_FACTOR = [RankFactor('S-RANK', 4)]
 
 
 class TrendingSuperstars(TrendingValue):
@@ -12,6 +15,8 @@ class TrendingSuperstars(TrendingValue):
         """
 
         TrendingValue.__init__(self, rank_factors, stock_data_file)
+        column_headings = SUPERSTAR_RANK_FACTOR + [RankFactor(rf.name, rf.priority + 1) for rf in rank_factors]
+        self.column_headings = sorted(column_headings)
 
     def rank_stocks(self):
         """ Rank the stocks. Methodology:
