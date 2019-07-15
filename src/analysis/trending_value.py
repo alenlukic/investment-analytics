@@ -21,7 +21,7 @@ TRENDING_VALUE_RANK_FACTORS = {
     'P/S': 'priceToSales',
     'DY%': 'dividendYield',
     'EY%': 'earningsYield',
-    '6MP%': 'month6ChangePercent'
+    '6M P/P': 'month6ChangePercent'
 }
 
 
@@ -50,12 +50,12 @@ class TrendingValue(Strategy):
 
         # Get metrics for each stock
         for stock in self.stocks:
-            append_if_exists(price_to_book_ratios, stock.get_price_to_book_ratio())
-            append_if_exists(price_to_earnings_ratios, stock.get_price_to_earnings_ratio())
-            append_if_exists(price_to_cash_flow_ratios, stock.get_price_to_cash_flow_ratio())
-            append_if_exists(price_to_sales_ratios, stock.get_price_to_sales_ratio())
-            append_if_exists(divided_yields, stock.get_dividend_yield())
-            append_if_exists(earnings_yields, stock.get_earnings_yield())
+            append_if_exists(price_to_book_ratios, stock.price_to_book_ratio())
+            append_if_exists(price_to_earnings_ratios, stock.price_to_earnings_ratio())
+            append_if_exists(price_to_cash_flow_ratios, stock.price_to_cash_flow_ratio())
+            append_if_exists(price_to_sales_ratios, stock.price_to_sales_ratio())
+            append_if_exists(divided_yields, stock.dividend_yield())
+            append_if_exists(earnings_yields, stock.earnings_yield())
 
         # Sort each metric in order of descending "goodness"
         n = self.num_stocks

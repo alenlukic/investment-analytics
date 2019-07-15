@@ -53,4 +53,4 @@ def format_rank(num):
     if len(rank) > 1 and rank[-2] == '1':
         suffix = 'th'
 
-    return '(' + rank + suffix + ')'
+    return rank + suffix

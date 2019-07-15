@@ -56,11 +56,11 @@ class Strategy:
     def _format_ranking(self):
         """ Creates formatted table of ranked stocks. """
 
-        table = [['Rank, Symbol'] + self.column_headings]
+        table = [['Rank', 'Company Name', 'Symbol'] + self.column_headings]
 
         for i, stock in enumerate(self.selected_stocks):
-            row = [format_rank(i + 1), stock.symbol()]
-            stock_rank_factors = stock.rank_factors()
+            row = [format_rank(i + 1), stock.get_company_name(), stock.get_symbol()]
+            stock_rank_factors = stock.get_rank_factors()
 
             for heading in self.column_headings:
                 stock_metric_value = stock_rank_factors[self.rank_factors[heading]]

@@ -8,12 +8,20 @@ class Stock:
     def __init__(self, symbol, stock_data):
         """ Stock class constructor.
 
-        :param symbol: Stock's ticker symbol.
-        :param stock_data: Dictionary containing stock data/metrics.
+        :param symbol: stock's ticker symbol.
+        :param stock_data: dictionary containing stock data/metrics.
         """
 
         self.symbol = symbol
         self.stock_data = stock_data
+
+    def get_company_name(self):
+        """ :returns: Company's name. """
+        return deep_get(self.stock_data, ['ADVANCED_STATS', 'companyName'], '(N/A)')
+
+    def get_symbol(self):
+        """ :returns: Company's ticker symbol. """
+        return self.symbol
 
     # Metric calculation functions below.
 
@@ -48,10 +56,6 @@ class Stock:
     def six_month_percent_delta(self):
         """ :returns: Six month % change in price. """
         return deep_get(self.stock_data, ['ADVANCED_STATS', 'month6ChangePercent'])
-
-    def symbol(self):
-        """ :returns: Stock's ticker symbol. """
-        return self.symbol()
 
     def cash_flow(self):
         """ :returns: Company cash flow. """
@@ -100,11 +104,7 @@ class RankedStock(Stock):
         self.comparison_metrics = {}
         self.comparison_value = MAX_VALUE
 
-    def comparison_value(self):
-        """ :returns: comparison value (used when sorting). """
-        return self.comparison_value()
-
-    def rank_factors(self):
+    def get_rank_factors(self):
         """ :returns: dictionary of rank factors. """
         return self.rank_factors
 
@@ -128,7 +128,7 @@ class RankedStock(Stock):
         self.rank_factors = rank_factors
 
     def __eq__(self, other):
-        return self.comparison_value() == other.comparison_value()
+        return self.comparison_value == other.comparison_value
 
     def __lt__(self, other):
-        return self.comparison_value() < other.get_comparison_value()
+        return self.comparison_value < other.comparison_value

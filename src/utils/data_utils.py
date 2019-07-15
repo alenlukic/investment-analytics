@@ -25,22 +25,23 @@ def append_if_exists(target_list, value):
         target_list.append(value)
 
 
-def deep_get(nested_object, path):
+def deep_get(nested_object, path, default=None):
     """ Gets deeply nested value from object.
 
-    :param nested_object: Deeply nested object (e.g. JSON represented as dict).
-    :param path: Ordered keys representing path to the value.
-    :return: Deeply nested value (or None).
+    :param nested_object: deeply nested object (e.g. JSON represented as dict).
+    :param path: ordered keys representing path to the value.
+    :param default: (optional) default value to return if value is missing.
+    :return: deeply nested value.
     """
 
     n = len(path)
     if n == 0:
-        return None
+        return default
 
     value = nested_object.get(path[0], None)
     for i in range(1, n):
         if value is None:
-            return value
+            return default
         value = value.get(path[i], None)
 
     return value
@@ -66,7 +67,7 @@ def merge_stock_data_partials(input_dir, output_suffix='_stock_data.json'):
 def merge_stock_data_to_master(source_file):
     """ Merge given stock data file to the master file.
 
-    :param source_file: Stock data file with which to update the master file.
+    :param source_file: stock data file with which to update the master file.
     """
 
     source_json = json.load(open(join(PROCESSED_DATA_DIR, source_file), 'r'))
