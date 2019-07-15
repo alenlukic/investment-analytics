@@ -7,8 +7,7 @@ ZERO_CUTOFF = math.pow(10, -9)
 
 
 def calculate_percentile(metric_value, ordered_metrics, num_metrics, default=50.0):
-    """
-    Calculate given metric's percentile.
+    """ Calculate given metric's percentile.
 
     :param metric_value: value of the metric whose percentile to calculate.
     :param ordered_metrics: ordered list of all other values for the metric.
@@ -28,11 +27,9 @@ def calculate_percentile(metric_value, ordered_metrics, num_metrics, default=50.
 
 
 def is_close_to_zero(num):
-    """
-    Returns true if input is within some small margin of 0.
+    """ Returns true if input is within some small margin of 0.
 
     :param num: number to test.
     :return: True if input number close to 0, else False.
     """
-
     return abs(num) < ZERO_CUTOFF

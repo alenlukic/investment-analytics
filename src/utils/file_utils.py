@@ -6,16 +6,15 @@ from os.path import exists, join
 def touch(file_name):
     """ Create file if it doesn't exist.
 
-    :param file_name: Name of the file to create.
+    :param file_name: name of the file to create.
     """
-
     open(file_name, 'a').close()
 
 
 def create_directory(directory_name):
     """ Create the directory if it doesn't exist.
 
-    :param directory_name: Name of the directory to create.
+    :param directory_name: name of the directory to create.
     """
 
     if not exists(directory_name):
@@ -42,7 +41,6 @@ def update_file(output_dir, file_name, content):
     :param file_name: name of the file to be updated.
     :param content: content to append to the file.
     """
-
     save_file(output_dir, file_name, content, 'a')
 
 
@@ -74,5 +72,4 @@ def update_json(output_dir, file_name, content, sort_keys=False, indent=2):
     :param sort_keys: indicates whether to write JSON in sorted key order.
     :param indent: number of spaces to indent subsequent levels of nesting in the JSON
     """
-
     save_json(output_dir, file_name, content, sort_keys, indent, 'a')

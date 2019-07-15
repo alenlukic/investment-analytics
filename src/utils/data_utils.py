@@ -83,6 +83,13 @@ def merge_stock_data_to_master(source_file):
 
 
 def pad_with_median(numbers, n):
+    """ Pad missing values using the median of known values.
+
+    :param numbers: set of known values.
+    :param n: total number of values (known + unknown).
+    :returns: values padded with median.
+    """
+
     diff = n - len(numbers)
     med = median(numbers)
-    return numbers + [med for i in range(diff)]
+    return numbers + [med] * diff

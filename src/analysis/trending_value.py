@@ -29,8 +29,7 @@ class TrendingValue(Strategy):
     """ Implementation of the James O’Shaughnessy’s trending value stock ranking methodology. """
 
     def __init__(self, rank_factors=TRENDING_VALUE_RANK_FACTORS, stock_data_file='stock_data_master.json'):
-        """
-        Constructor.
+        """ Constructor.
 
         :param rank_factors: dictionary mapping rank factor names to formatted column headings.
         :param stock_data_file: JSON file containing structured stock data.
@@ -84,8 +83,7 @@ class TrendingValue(Strategy):
             stock.set_comparison_metrics(comparison_metrics)
 
     def rank_stocks(self):
-        """
-        Rank the stocks. Methodology:
+        """ Rank the stocks. Methodology:
 
         1. Select the 10% most undervalued companies using the Value Composite Two indicator.
         2. Select 25 stocks with the best six-month price appreciation.
@@ -101,17 +99,19 @@ class TrendingValue(Strategy):
 
         # Re-rank top decile
         self.selected_stocks = sorted(top_decile, reverse=True)
-        self._format_ranking()
+        self.ranking_table = self._create_ranking_table()
 
     def save_ranking(self, file_prefix='trending_value_'):
-        """
-        Saves formatted stock ranking to disk.
+        """ Saves formatted stock ranking to disk.
 
         :param file_prefix: file name prefix.
         """
         Strategy.save_ranking(self, file_prefix)
 
     def _initialize_stocks(self):
+        """ Initializes set of stocks by filtering out any companies with a market cap under $200M.
+        """
+
         stocks = []
 
         for symbol, stock_data in self.stock_data.items():
@@ -121,11 +121,3 @@ class TrendingValue(Strategy):
             stocks.append(RankedStock(symbol, stock_data))
 
         return stocks
-
-
-if __name__ == '__main__':
-    tvs = TrendingValue()
-    tvs.calculate_metrics()
-    tvs.rank_stocks()
-    tvs.print_ranking()
-    tvs.save_ranking()

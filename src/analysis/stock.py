@@ -109,8 +109,7 @@ class RankedStock(Stock):
         return self.rank_factors
 
     def set_comparison_metrics(self, comparison_metrics):
-        """
-        Set the dictionary of comparison metrics (and also set the rank as the sum of these factors).
+        """ Set the dictionary of comparison metrics (and also set the rank as the sum of these factors).
 
         :param comparison_metrics: dictionary mapping metric name to value.
         """
@@ -119,8 +118,7 @@ class RankedStock(Stock):
         self.comparison_value = sum(comparison_metrics.values())
 
     def set_rank_factors(self, rank_factors):
-        """
-        Set the dictionary of rank factors (and also set the rank as the sum of these factors).
+        """ Set the dictionary of rank factors (and also set the rank as the sum of these factors).
 
         :param rank_factors: dictionary mapping rank factor name to value.
         """

@@ -4,7 +4,9 @@ from os.path import join
 from tabulate import tabulate
 
 from src.analysis.stock import RankedStock
-from src.utils.formatting_utils import format_decimal, format_rank
+from src.utils.file_utils import save_file, save_json
+from src.utils.formatting_utils import format_currency, format_decimal, format_rank
+from src.utils.math_utils import MAX_VALUE
 
 CONFIG = json.load(open('config.json', 'r'))
 LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.analysis.trending_value')
@@ -15,12 +17,12 @@ class Strategy:
     """ Base class for an investment strategy. """
 
     def __init__(self, rank_factors, stock_data_file='stock_data_master.json'):
-        """
-        Constructor.
+        """ Constructor.
 
         :param rank_factors: dictionary mapping formatted column headings to rank factor names.
         :param stock_data_file: JSON file containing structured stock data.
         """
+
         self.stock_data = json.load(open(join(PROCESSED_DATA_DIR, stock_data_file), 'r'))
         self.stocks = self._initialize_stocks()
         self.num_stocks = len(self.stocks)
@@ -29,37 +31,42 @@ class Strategy:
 
         # Set after ranking
         self.selected_stocks = []
-        self.formatted_ranking = ''
+        self.ranking_table = []
 
     def rank_stocks(self):
         """ Rank the stocks. """
 
         self.selected_stocks = sorted(self.stocks)
-        self._format_ranking()
+        self.ranking_table = self._create_ranking_table()
 
-    def print_ranking(self):
-        """ Prints formatted ranking table. """
-        print(self.formatted_ranking)
+    def print_ranking(self, num=None):
+        """ Prints formatted ranking table.
+
+        :param num: (optional) number of stocks to print (defaults to all).
+        """
+
+        n = min(len(self.ranking_table), (num or MAX_VALUE) + 1)
+        print(tabulate(self.ranking_table[0:n]))
 
     def save_ranking(self, file_prefix):
-        """
-        Saves formatted stock ranking to disk.
+        """ Saves formatted stock ranking to disk.
 
         :param file_prefix: file name prefix.
         """
 
-        ranking_file_name = file_prefix + datetime.today().strftime('%Y%m%d') + '.txt'
-        output_path = join(PROCESSED_DATA_DIR, 'stock_rankings', ranking_file_name)
-        with open(output_path, 'w') as w:
-            w.write(self.formatted_ranking)
+        ranking_file_prefix = file_prefix + datetime.today().strftime('%Y%m%d')
+        output_dir = join(PROCESSED_DATA_DIR, 'stock_rankings')
 
-    def _format_ranking(self):
+        save_file(output_dir, ranking_file_prefix + '.txt', tabulate(self.ranking_table))
+        save_json(output_dir, ranking_file_prefix + '.json', {'ranking': self.ranking_table})
+
+    def _create_ranking_table(self):
         """ Creates formatted table of ranked stocks. """
 
         table = [['Rank', 'Company Name', 'Symbol', 'Price'] + self.column_headings]
 
         for i, stock in enumerate(self.selected_stocks):
-            row = [format_rank(i + 1), stock.get_company_name(), stock.get_symbol(), format_decimal(stock.price(), 2)]
+            row = [format_rank(i + 1), stock.get_company_name(), stock.get_symbol(), format_currency(stock.price())]
             stock_rank_factors = stock.get_rank_factors()
 
             for heading in self.column_headings:
@@ -68,7 +75,7 @@ class Strategy:
 
             table.append(row)
 
-        self.formatted_ranking = tabulate(table)
+        return table
 
     def _initialize_stocks(self):
         """ Initialize set of stocks to analyze. """

@@ -49,7 +49,7 @@ class IEXCloudAPI:
     def get_advanced_stats(self, symbol):
         """ Make GET request to the /stock/advanced-stats endpoint.
 
-        :param symbol: Ticker symbol for which to pull data.
+        :param symbol: ticker symbol for which to pull data.
         :return: dictionary containing all keys in /stock/advanced-stats.
         """
 
@@ -59,7 +59,7 @@ class IEXCloudAPI:
     def get_cash_flow(self, symbol):
         """ Make GET request to the /stock/cash-flow endpoint.
 
-        :param symbol: Ticker symbol for which to pull data.
+        :param symbol: ticker symbol for which to pull data.
         :return: dictionary containing all keys in /stock/cash-flow.
         """
 
@@ -69,7 +69,7 @@ class IEXCloudAPI:
     def get_price(self, symbol):
         """ Make GET request to the /stock/{symbol}/price endpoint.
 
-        :param symbol: Ticker symbol for which to pull data.
+        :param symbol: ticker symbol for which to pull data.
         :return: number representing most recent stock price.
         """
 
@@ -109,7 +109,6 @@ class IEXCloudAPI:
         :param response: Response object.
         :return: dictionary containing response context.
         """
-
         return {
             'Status': response.status_code,
             'Reason': response.reason,
@@ -174,11 +173,3 @@ def build_argument_parser():
     parser.add_argument('-e', '--endpoints', type=str, default='ADVANCED_STATS,CASH_FLOW,PRICE')
 
     return parser
-
-
-if __name__ == '__main__':
-    args = build_argument_parser().parse_args()
-    API = IEXCloudAPI(args.production)
-    if args.symbols:
-        download_symbols()
-    ingest_stock_data(args.endpoints.split(','))
