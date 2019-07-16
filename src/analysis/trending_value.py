@@ -42,7 +42,7 @@ class TrendingValue(Strategy):
         """ Rank the stocks. Methodology:
 
         1. Select the 10% most undervalued companies using the Value Composite Two indicator.
-        2. Select 25 stocks with the best six-month price appreciation.
+        2. Rank these stocks by six-month price appreciation.
         """
 
         self._calculate_metrics()
