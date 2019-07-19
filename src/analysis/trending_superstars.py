@@ -22,7 +22,7 @@ class TrendingSuperstars(TrendingValue):
         updated_tv_factors = [rf.init(rf.priority + 1) for rf in rank_factors]
         self.rank_factors = sorted(STOCK_INFO_FACTORS + SUPERSTAR_MOMENTUM_FACTOR + updated_tv_factors)
 
-    def rank_stocks(self, superstar_weight=0.2, momentum_weight=0.8):
+    def rank_stocks(self, superstar_weight=0.4, momentum_weight=0.6):
         """ Rank the stocks. Methodology:
 
         1. Select the 10% most undervalued companies using the Value Composite Two indicator.
@@ -37,12 +37,11 @@ class TrendingSuperstars(TrendingValue):
         # First apply VC2 strategy
         TrendingValue.rank_stocks(self)
 
-        top_stocks = self.selected_stocks[0:min(len(self.selected_stocks), 100)]
+        # Calculate Superstar Rank for each stock
         superstar_ranks = []
         momentum_factors = []
 
-        # Calculate Superstar Rank for each stock
-        for stock in top_stocks:
+        for stock in self.selected_stocks:
             rank_factors = stock.get_rank_factors()
             superstar_rank = sum([1 if rank_factors[vf.name] <= 10 else 0 for vf in VALUE_FACTORS])
             stock.update_rank_factors({'S-M FACTOR': superstar_rank})
@@ -50,18 +49,18 @@ class TrendingSuperstars(TrendingValue):
             append_if_exists(momentum_factors, stock.six_month_percent_delta())
 
         # Calculate percentiles and set S-M (superstar-momentum) factor
-        n = len(top_stocks)
+        n = len(self.selected_stocks)
         superstar_ranks = sorted(pad_with_median(superstar_ranks, n), reverse=True)
         momentum_factors = sorted(pad_with_median(momentum_factors, n), reverse=True)
 
-        for stock in top_stocks:
+        for stock in self.selected_stocks:
             superstar_percentile = calculate_percentile(stock.get_rank_factors()['S-M FACTOR'], superstar_ranks, n)
             momentum_percentile = calculate_percentile(stock.six_month_percent_delta(), momentum_factors, n)
             superstar_momentum = (superstar_weight * superstar_percentile) + (momentum_weight * momentum_percentile)
             stock.update_rank_factors({'S-M FACTOR': superstar_momentum})
             stock.set_comparison_value(superstar_momentum)
 
-        self.selected_stocks = sorted(top_stocks)
+        self.selected_stocks = sorted(self.selected_stocks)
         self._set_ranks()
 
 
