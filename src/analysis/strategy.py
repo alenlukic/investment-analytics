@@ -37,13 +37,13 @@ class Strategy:
         self.rank_factors = sorted(STOCK_INFO_FACTORS + rank_factors)
 
         # Set after ranking
-        self.selected_stocks = []
+        self.ranked_stocks = []
         self.ranking_table = []
 
     def rank_stocks(self):
         """ Rank the stocks. """
 
-        self.selected_stocks = sorted(self.stocks)
+        self.ranked_stocks = sorted(self.stocks)
         self._set_ranks()
 
     def create_ranking_table(self):
@@ -51,7 +51,7 @@ class Strategy:
 
         table = [[c.name for c in self.rank_factors]]
 
-        for stock in self.selected_stocks:
+        for stock in self.ranked_stocks:
             row = []
             stock_rank_factors = stock.get_rank_factors()
 
@@ -82,8 +82,14 @@ class Strategy:
         ranking_file_prefix = file_prefix + datetime.today().strftime('%Y%m%d')
         output_dir = join(PROCESSED_DATA_DIR, 'stock_rankings')
 
-        save_file(output_dir, ranking_file_prefix + '.txt', tabulate(self.ranking_table))
-        save_json(output_dir, ranking_file_prefix + '.json', {'ranking': self.ranking_table})
+        table_ranking = tabulate(self.ranking_table)
+        save_file(output_dir, ranking_file_prefix + '.txt', table_ranking)
+        json_ranking = {s.get_symbol(): s.get_rank_factors() for s in self.ranked_stocks}
+        save_json(output_dir, ranking_file_prefix + '.json', json_ranking)
+
+    def get_ranked_stocks(self):
+        """ Returns ranked stocks. """
+        return self.ranked_stocks
 
     def _initialize_stocks(self):
         """ Initialize set of stocks to analyze. """
@@ -91,6 +97,5 @@ class Strategy:
 
     def _set_ranks(self):
         """ Set the Rank column on newly ranked stocks. """
-
-        for i, stock in enumerate(self.selected_stocks):
+        for i, stock in enumerate(self.ranked_stocks):
             stock.update_rank_factors({'Rank': i + 1})

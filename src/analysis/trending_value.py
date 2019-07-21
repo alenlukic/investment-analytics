@@ -42,7 +42,7 @@ class TrendingValue(Strategy):
         """ Rank the stocks. Methodology:
 
         1. Select the 10% most undervalued companies using the Value Composite Two indicator.
-        2. Select 25 stocks with the best six-month price appreciation.
+        2. Rank these stocks by six-month price appreciation.
         """
 
         self._calculate_metrics()
@@ -56,7 +56,7 @@ class TrendingValue(Strategy):
             stock.set_comparison_metrics({'6M P/P': stock.six_month_percent_delta()})
 
         # Re-rank top decile
-        self.selected_stocks = sorted(top_decile, reverse=True)
+        self.ranked_stocks = sorted(top_decile, reverse=True)
         self._set_ranks()
 
     def _calculate_metrics(self):
