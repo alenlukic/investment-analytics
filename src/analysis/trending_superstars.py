@@ -41,7 +41,7 @@ class TrendingSuperstars(TrendingValue):
         superstar_ranks = []
         momentum_factors = []
 
-        for stock in self.selected_stocks:
+        for stock in self.ranked_stocks:
             rank_factors = stock.get_rank_factors()
             superstar_rank = sum([1 if rank_factors[vf.name] <= 10 else 0 for vf in VALUE_FACTORS])
             stock.update_rank_factors({'S-M FACTOR': superstar_rank})
@@ -49,18 +49,18 @@ class TrendingSuperstars(TrendingValue):
             append_if_exists(momentum_factors, stock.six_month_percent_delta())
 
         # Calculate percentiles and set S-M (superstar-momentum) factor
-        n = len(self.selected_stocks)
+        n = len(self.ranked_stocks)
         superstar_ranks = sorted(pad_with_median(superstar_ranks, n), reverse=True)
         momentum_factors = sorted(pad_with_median(momentum_factors, n), reverse=True)
 
-        for stock in self.selected_stocks:
+        for stock in self.ranked_stocks:
             superstar_percentile = calculate_percentile(stock.get_rank_factors()['S-M FACTOR'], superstar_ranks, n)
             momentum_percentile = calculate_percentile(stock.six_month_percent_delta(), momentum_factors, n)
             superstar_momentum = (superstar_weight * superstar_percentile) + (momentum_weight * momentum_percentile)
             stock.update_rank_factors({'S-M FACTOR': superstar_momentum})
             stock.set_comparison_value(superstar_momentum)
 
-        self.selected_stocks = sorted(self.selected_stocks)
+        self.ranked_stocks = sorted(self.ranked_stocks)
         self._set_ranks()
 
 

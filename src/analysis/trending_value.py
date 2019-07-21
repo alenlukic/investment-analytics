@@ -56,7 +56,7 @@ class TrendingValue(Strategy):
             stock.set_comparison_metrics({'6M P/P': stock.six_month_percent_delta()})
 
         # Re-rank top decile
-        self.selected_stocks = sorted(top_decile, reverse=True)
+        self.ranked_stocks = sorted(top_decile, reverse=True)
         self._set_ranks()
 
     def _calculate_metrics(self):
