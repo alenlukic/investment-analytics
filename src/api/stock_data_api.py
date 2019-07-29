@@ -19,6 +19,8 @@ logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG)
 
 
 class StockDataAPI:
+    """ Base class for any API used to obtain stock data. """
+
     def __init__(self, base_url, is_prod=True):
         self.base_url = base_url
         self.is_prod = is_prod
@@ -64,6 +66,12 @@ class FinancialContentAPI(StockDataAPI):
         """ FC data endpoints. """
         DETAILED_QUOTE = 'quote/detailedquote'
         HISTORICAL_DATA = 'action/gethistoricaldata'
+
+    # Maps endpoint name to function name used to hit that endpoint
+    ENDPOINT_FUNCTIONS = {
+        FinancialContentEndpoint.DETAILED_QUOTE.name: 'quote/detailedquote',
+        FinancialContentEndpoint.HISTORICAL_DATA.name: 'action/gethistoricaldata',
+    }
 
     def __init__(self):
         """ Initializes class with Financial Content's base url. """
@@ -134,7 +142,6 @@ class IEXCloudAPI(StockDataAPI):
         """ Reference data API endpoints. """
         SYMBOLS = 'ref-data/symbols'
 
-    # Maps endpoint name to function name used to hit that endpoint
     ENDPOINT_FUNCTIONS = {
         IEXStockDataEndpoint.ADVANCED_STATS.name: 'get_advanced_stats',
         IEXStockDataEndpoint.CASH_FLOW.name: 'get_cash_flow',
