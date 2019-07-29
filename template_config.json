@@ -1,9 +1,10 @@
 {
-  "API_KEY": "Prod IEX Cloud public API token goes here; i.e. pk_blahblahblah",
-  "API_URL": "Prod URL goes here; i.e. https://cloud.iexapis.com/stable",
-  "DATA_DIRECTORY": "Absolute path to the data directory goes here; e.g. /Users/user/iex-investment-analytics/data",
+  "DATA_DIRECTORY": "Absolute path to the data directory goes here; e.g. /Users/user/investment-analytics/data",
+  "FINANCIAL_CONTENT_API_URL": "Financial content URL goes here; i.e http://markets.financialcontent.com/stocks",
+  "IEX_API_KEY": "Prod IEX Cloud public API token goes here; e.g. pk_blahblahblah",
+  "IEX_API_URL": "Prod URL goes here; i.e. https://cloud.iexapis.com/stable",
   "LOG_DIRECTORY": "Absolute path to the log directory goes here; e.g. /Users/user/iex-investment-analytics/logs",
   "PROJECT_DIRECTORY": "Absolute path to the project directory goes here; e.g. /Users/user/iex-investment-analytics",
-  "SANDBOX_API_KEY": "Sandbox IEX Cloud public API token goes here; i.e. Tpk_blahblahblah",
-  "SANDBOX_API_URL": "Sandbox URL goes here; i.e. https://sandbox.iexapis.com/stable"
+  "SANDBOX_IEX_API_KEY": "Sandbox IEX Cloud public API token goes here; e.g. Tpk_blahblahblah",
+  "SANDBOX_IEX_API_URL": "Sandbox URL goes here; i.e. https://sandbox.iexapis.com/stable"
 }
