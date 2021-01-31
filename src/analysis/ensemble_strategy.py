@@ -15,4 +15,4 @@
 
 # Detailed quote (content type: HTML)
 # http://markets.financialcontent.com/stocks/quote/detailedquote?Symbol={SYMBOL}
-# Rekevant HTML elements: row_price, row_eps, row_pe, row_dividendyield, row_sharesoutstanding, row_volume
+# Relevant HTML elements: row_price, row_eps, row_pe, row_dividendyield, row_sharesoutstanding, row_volume

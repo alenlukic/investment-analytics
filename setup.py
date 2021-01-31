@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setup(
     name='investment-analytics',
-    version='0.0',
+    version='0.0.1',
     description='Provides Python interface to various stock data APIs and investment analytics utilities.',
     url='https://github.com/alenlukic/investment-analytics',
     author='Alen Lukic',

@@ -1,19 +1,13 @@
 import argparse
 import logging
-import json
 import requests
 from datetime import datetime
 from enum import Enum
-from os.path import join
 
+from src.definitions.config import *
 from src.utils.data_utils import merge_stock_data_partials
 from src.utils.file_utils import create_directory, save_file, save_json
 
-
-CONFIG = json.load(open('config.json', 'r'))
-LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.api.iex_api')
-PROCESSED_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'processed')
-RAW_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'raw')
 
 logging.basicConfig(filename=LOG_FILE, level=logging.DEBUG)
 
@@ -149,7 +143,7 @@ class IEXCloudAPI(StockDataAPI):
         IEXRefDataEndpoint.SYMBOLS.name: 'get_symbols'
     }
 
-    def __init__(self, is_prod):
+    def __init__(self, is_prod=True):
         """ Initializes class with IEX Cloud API's base url and parameters (API token).
 
         :param is_prod: indicates whether to use production endpoint.
@@ -199,7 +193,7 @@ class IEXCloudAPI(StockDataAPI):
         :return: the response content.
         """
         response = StockDataAPI._get_response(self, request_url, params or self.params, headers, verify)
-        return json.dumps(json.loads((response and response.content) or '{}'))
+        return json.loads((response and response.content) or '{}')
 
     def download_symbols(self, output_name='all_iex_supported_tickers.txt'):
         """ Gets JSON representation of all symbols supported on IEX Cloud.
