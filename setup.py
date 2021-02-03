@@ -4,10 +4,10 @@ with open('requirements.txt') as f:
     requirements = [r.strip() for r in f.read().splitlines()]
 
 setup(
-    name='iex-investment-analytics',
-    version='0.0',
-    description='Provides Python interface to IEX Cloud API and investment analytics utilities.',
-    url='https://github.com/alenlukic/iex-investment-analytics',
+    name='investment-analytics',
+    version='0.0.1',
+    description='Provides Python interface to various stock data APIs and investment analytics utilities.',
+    url='https://github.com/alenlukic/investment-analytics',
     author='Alen Lukic',
     classifiers=[
         'Development Status :: 3 - Alpha',

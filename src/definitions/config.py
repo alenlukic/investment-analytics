@@ -1,0 +1,11 @@
+import json
+from os.path import join
+
+CONFIG = json.load(open('config.json', 'r'))
+DB_CONFIG = CONFIG['DB_CONFIG']
+LOG_FILE = join(CONFIG['LOG_DIRECTORY'], 'src.api.iex_api')
+FILTERED_SYMBOLS = CONFIG['FILTERED_SYMBOLS']
+PROCESSED_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'processed')
+RAW_DATA_DIR = join(CONFIG['DATA_DIRECTORY'], 'raw')
+TICKER_DETAILS = CONFIG['TICKER_DETAILS']
+TICKER_SYMBOLS = CONFIG['TICKER_SYMBOLS']

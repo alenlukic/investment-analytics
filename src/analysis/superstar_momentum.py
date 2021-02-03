@@ -8,7 +8,7 @@ from src.utils.rank_utils import RankFactor
 SUPERSTAR_MOMENTUM_FACTOR = [RankFactor('S-M FACTOR', 4)]
 
 
-class TrendingSuperstars(TrendingValue):
+class SuperstarMomentum(TrendingValue):
     """ Custom ranking methodology that extends Trending Value. """
 
     def __init__(self, rank_factors=TRENDING_VALUE_RANK_FACTORS, stock_data_file='stock_data_master.json'):
@@ -65,8 +65,8 @@ class TrendingSuperstars(TrendingValue):
 
 
 if __name__ == '__main__':
-    ranker = TrendingSuperstars()
+    ranker = SuperstarMomentum()
     ranker.rank_stocks()
     ranker.create_ranking_table()
     ranker.print_ranking()
-    ranker.save_ranking('trending_superstars_')
+    ranker.save_ranking('superstat_momentum_')
