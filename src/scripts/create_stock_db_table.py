@@ -1,13 +1,12 @@
 from sqlalchemy import Integer, JSON, String
-from SQLAlchemyDB import Database, DBColumn, Table as DBTable
+from SQLAlchemyDB import DBColumn, Table as DBTable
 
-from src.definitions.config import DB_CONFIG
+from src.db import metadata
 
 
-def create_table(database):
+def create_table():
     json_columns = ['price', 'key_stats', 'advanced_stats', 'cash_flow']
     table = 'stock_data'
-    metadata = database.get_metadata()
 
     columns = [
         DBColumn('id', Integer).as_index().as_primary_key().as_unique().create(metadata, table),
@@ -21,4 +20,4 @@ def create_table(database):
 
 
 if __name__ == '__main__':
-    create_table(Database(DB_CONFIG))
+    create_table()

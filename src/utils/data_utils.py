@@ -1,4 +1,5 @@
 import json
+from functools import reduce
 from os import listdir
 from os.path import basename, join
 from statistics import median
@@ -15,27 +16,34 @@ def append_if_exists(target_list, value):
         target_list.append(value)
 
 
+def compact_object(obj):
+    return {k: v for k, v in obj.items() if not is_empty(v)}
+
+
 def deep_get(nested_object, path, default=None):
     n = len(path)
     if n == 0:
         return default
 
-    value = nested_object.get(path[0], None)
-    for i in range(1, n):
+    value = nested_object
+    for i in range(n):
+        value = value.get(path[i], None)
         if value is None:
             return default
-        value = value.get(path[i], None)
 
     return value
 
 
+def is_empty(val):
+    return val is None or val == [] or val == {}
+
+
 def merge_dictionaries(dicts):
-    merged = {}
+    def update_and_return(target, payload):
+        target.update(payload)
+        return target
 
-    for d in dicts:
-        merged.update(d)
-
-    return merged
+    return reduce(update_and_return, [{}] + dicts)
 
 
 def merge_stock_data_partials(input_dir, output_suffix='_stock_data.json'):

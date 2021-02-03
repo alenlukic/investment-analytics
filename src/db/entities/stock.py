@@ -1,29 +1,30 @@
 from sqlalchemy import Column, Integer, Sequence
-from SQLAlchemyDB import Base, metadata
+
+from src.db import Base, metadata
 
 
-class Stock(Base):
+class StockData(Base):
     """
-    Represents row in artist table in the sqlalchemy ORM. Postgres schema:
+    Represents stock table in the DB. Postgres schema:
 
-                          Table "public.artist"
-       Column    |       Type        | Collation | Nullable | Default
-    -------------+-------------------+-----------+----------+---------
-     id          | integer           |           | not null |
-     name        | character varying |           | not null |
-     track_count | integer           |           | not null |
+                               Table "public.stock_data"
+         Column     |            Type             | Collation | Nullable | Default
+    ----------------+-----------------------------+-----------+----------+---------
+     id             | integer                     |           | not null |
+     symbol         | character varying           |           | not null |
+     key_stats      | json                        |           |          |
+     advanced_stats | json                        |           |          |
+     cash_flow      | json                        |           |          |
+     timestamp      | timestamp without time zone |           |          | now()
+     price          | numeric(15,2)               |           |          |
     Indexes:
-        "artist_pkey" PRIMARY KEY, btree (id, name)
-        "ix_artist_id" UNIQUE, btree (id)
-        "ix_artist_name" UNIQUE, btree (name)
-    Referenced by:
-        TABLE "artist_track" CONSTRAINT "artist_track_artist_id_fkey" FOREIGN KEY (artist_id) REFERENCES artist(id)
+        "ix_stock_data_id" UNIQUE, btree (id)
     """
 
-    __tablename__ = 'artist'
+    __tablename__ = 'stock_data'
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer, Sequence('artist_seq', metadata=metadata), primary_key=True, index=True, unique=True)
+    id = Column(Integer, Sequence('stock_data_seq', metadata=metadata), index=True, unique=True)
 
     def __eq__(self, other):
         return self.id == other.id and self.__class__.__name__ == other.__class__.__name__
