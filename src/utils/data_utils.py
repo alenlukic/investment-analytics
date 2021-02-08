@@ -1,8 +1,10 @@
 import json
+from datetime import datetime
 from functools import reduce
 from os import listdir
 from os.path import basename, join
 from statistics import median
+from time import time
 
 from src.utils.file_utils import save_json
 
@@ -34,8 +36,32 @@ def deep_get(nested_object, path, default=None):
     return value
 
 
+def deep_get_keys(nested_object, acc=set()):
+    for k in deep_get_values(nested_object).keys():
+        acc.add(k)
+
+    return acc
+
+
+def deep_get_values(nested_object, acc={}):
+    if nested_object is None:
+        return acc
+
+    for k, v in nested_object.items():
+        if type(v) == dict:
+            deep_get_values(v, acc)
+        else:
+            acc[k] = v
+
+    return acc
+
+
+def get_iso_timestamp(seconds_since_epoch=time()):
+    return datetime.isoformat(datetime.fromtimestamp(seconds_since_epoch))
+
+
 def is_empty(val):
-    return val is None or val == [] or val == {}
+    return val is None or val == [] or val == {} or val == ''
 
 
 def merge_dictionaries(dicts):

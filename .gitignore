@@ -112,6 +112,9 @@ data/*
 # Log directory
 logs/*
 
+# Temp scripts
+src/scripts/tmp/*
+
 # Local config
 config.json
 

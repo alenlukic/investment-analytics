@@ -24,7 +24,7 @@ class StockData(Base):
     __tablename__ = 'stock_data'
     __table_args__ = {'extend_existing': True}
 
-    id = Column(Integer, Sequence('stock_data_seq', metadata=metadata), index=True, unique=True)
+    id = Column(Integer, Sequence('stock_data_seq', metadata=metadata), index=True, unique=True, primary_key=True)
 
     def __eq__(self, other):
         return self.id == other.id and self.__class__.__name__ == other.__class__.__name__

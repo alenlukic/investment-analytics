@@ -124,6 +124,7 @@ class IEXCloudAPI(StockDataAPI):
         save_file(RAW_DATA_DIR, output_name, '\n'.join(symbols))
 
     def update_stock_data(self, symbols=None, endpoints=None, output_name='stock_data_'):
+        # TODO: output to DB
         output_dir = join(PROCESSED_DATA_DIR, datetime.today().strftime('%Y%m%d') + '_partials')
         create_directory(output_dir)
 
